@@ -6,7 +6,6 @@ import path from 'path';
 dotenv.config();
 const backupDir = './backups';
 
-
 const dumpFileName = path.join(backupDir, `${Math.round(Date.now() / 1000)}.dump.sql`);
 
 const writeStream = fs.createWriteStream(dumpFileName);

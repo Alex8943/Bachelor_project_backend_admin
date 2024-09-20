@@ -2,7 +2,8 @@
 .git/
 
 #db files
-./backups
+backups
+
 
 # Logs
 logs
