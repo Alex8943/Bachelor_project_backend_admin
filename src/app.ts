@@ -1,13 +1,12 @@
 import express from 'express';
 import { testDBConnection } from "./db_services/db_connection";
+import dump from "./db_services/backup";
 
 const app = express();
 
 
-testDBConnection();
-
-
-
+//testDBConnection();
+//dump;
 
 
 
