@@ -82,7 +82,8 @@ interface UserAttributes {
   }, {
     sequelize,
     modelName: 'User',
-    tableName: 'users'
+    tableName: 'users',
+    timestamps: false, 
   });
 
   interface MediaAttributes {
@@ -235,14 +236,14 @@ Review.belongsTo(Media, { foreignKey: 'media_fk' });
   
 Role.hasMany(User, { foreignKey: 'role_fk' });
 User.belongsTo(Role, { foreignKey: 'role_fk' });
-
-module.exports = {
+export {
     User,
     Role,
     Media,
     Review,
     ReviewActions
-};
+}
+
 
 
   

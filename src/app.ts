@@ -2,12 +2,17 @@ import express from 'express';
 import { testDBConnection } from "./db_services/db_connection";
 import dump from "./db_services/backup";
 import logger from "./other_services/winstonLogger";
+import authRouter from "./routes/authRouter";
 
 const app = express();
 
-
 //testDBConnection();
 //dump;
+
+app.use(authRouter);
+
+
+
 
 process.on('SIGINT', (code) => {
     logger.end(); 
