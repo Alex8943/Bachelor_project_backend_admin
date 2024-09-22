@@ -4,16 +4,50 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { User } from "../other_services/model/seqModel";
 import { QueryTypes } from 'sequelize';
+import logger from "../other_services/winstonLogger";
+import { log } from "console";
 
 
 const router = express.Router();
 router.use(express.json()); //middleware for at pars JSON
 
+router.post("/auth/login", async (req, res) => {
+    try {
+        const result: any = await getUser(req.body.email, req.body.password);
+        let jwtUser = {
+            "id": result.id,
+            "name": result.name,
+            "lastname": result.lastname,
+            "email": result.email,
+            "password": result.password
+        }
+        let resultWithToken = {"authToken": jwt.sign({ user: jwtUser }, "secret"), "user": result};
+        res.status(200).send(resultWithToken);
+        console.log("User: ", jwtUser.name, ", has signed in")
+        return resultWithToken;
+    }catch(err:any){
+        if (err.message == "No user found with the given credentials"){
+            res.status(404).send(err.message);
+            logger.error(err.message);
+            return err.message;
+        }else if (err.message == "Incorrect email or password"){
+            res.status(401).send(err.message);
+            logger.error(err.message);
+            return err.message;
+        }else{
+            res.status(500).send("Something went wrong while logging in");
+            console.log("Error: ", err)
+            logger.error(err.message);
+            return "Something went wrong while logging in (returning 500)";
+        }
+    }
+}); 
+
 
 router.post("/auth/signup", async (req, res) => {
     try {
         const result: any = await createUser(req.body.name, req.body.lastname, req.body.email, req.body.password);
-        console.log("result: ", result)
+      
         let jwtUser = {
             "id": result.id,
             "name": result.name,
@@ -32,58 +66,52 @@ router.post("/auth/signup", async (req, res) => {
         } else {
             res.status(500).send("Something went wrong while creating user ");
             console.log("Error: ", err)
+            logger.error(err.message);
             return "Something went wrong while creating user (returning 500)";
         }
     }
 })
 
-//Talk about implement tumbstone and snapchot pattern in the database
-export async function getUser(email: string, password: string){
-    try{
-        let user, userData; 
+
+export async function getUser(email: string, password: string) {
+    try {
+        // Fetch user ID using the email
         const user_id_data = await User.findOne({
-            where: {email: email},
-            attributes: ["id"],
-            include: [
-                {
-                model: User,
-                attributes: ["name"]
-                },
-            ], 
+            where: { email: email },
+            attributes: ["id"]
         });
 
-        const userId = user_id_data?.get("id"); 
-        console.log("users id: ", userId);
-        user = await User.findAll({
-            where: {id: userId},
-            include: [
-                {
-                    model: User,
-                    attributes: ["name", "lastname"]
-                }
-            ], 
-            order: [["id", "ASC"]],
-            limit: 1,
-        });
-        userData = user[0].get();
-            // userData.name is already a string, no need to assign dataValues
-            console.log("userData: ", userData)
-        
-        if (!user) {
-            console.log("No user found with the given credentials")
-            throw new Error("No user found with the given credentials");
-        }else if (!bcrypt.compareSync(password, userData.password)) {
-            console.log("Incorrect email or password")
-            throw new Error("Incorrect email or password");
-        }else {
-            return userData; 
+        const userId = user_id_data?.get("id");
+        console.log("User's id: ", userId);
+
+        if (!userId) {
+            logger.error("No user found with the given credentials");
+            console.log("No user found with the given credentials");
         }
-    }catch(error){
-        console.log("error: ", error)
-        throw error; 
-    }
 
-};
+        // Fetch user details using the ID
+        const user = await User.findOne({
+            where: { id: userId },
+            attributes: ["name", "lastname", "password"], // Ensure password is included
+        });
+
+        if (!user) {
+            throw new Error("No user found with the given credentials");
+        }
+
+        const userData = user.get(); // Extract user data
+
+        // Compare passwords
+        if (!bcrypt.compareSync(password, userData.password)) {
+            throw new Error("Incorrect email or password");
+        }
+
+        return userData;
+    } catch (error) {
+        console.log("error: ", error);
+        throw error;
+    }
+}
 
 export async function createUser(name: string, lastname: string, email: string, password: string) {
     try{

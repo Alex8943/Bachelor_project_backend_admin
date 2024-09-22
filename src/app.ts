@@ -7,7 +7,7 @@ import authRouter from "./routes/authRouter";
 const app = express();
 
 //testDBConnection();
-dump;
+//dump;
 
 app.use(authRouter);
 
