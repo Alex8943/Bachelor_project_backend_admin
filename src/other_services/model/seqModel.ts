@@ -26,7 +26,8 @@ Role.init({
 }, {
   sequelize,
   modelName: 'Role',
-  tableName: 'role'
+  tableName: 'role',
+  timestamps: false
 });
 
 interface UserAttributes {
@@ -90,7 +91,7 @@ interface UserAttributes {
     id: number;
     youtube?: string;
     podcast?: string;
-    book?: string;
+    movie?: string;
   }
   
   interface MediaCreationAttributes extends Optional<MediaAttributes, 'id'> {}
@@ -99,7 +100,7 @@ interface UserAttributes {
     public id!: number;
     public youtube?: string;
     public podcast?: string;
-    public book?: string;
+    public movie?: string;
   }
   
   Media.init({
@@ -114,13 +115,14 @@ interface UserAttributes {
     podcast: {
       type: DataTypes.STRING(255)
     },
-    book: {
+    movie: {
       type: DataTypes.STRING(255)
     }
   }, {
     sequelize,
     modelName: 'Media',
-    tableName: 'media'
+    tableName: 'media',
+    timestamps: false
   });
 
 
@@ -176,7 +178,8 @@ interface ReviewAttributes {
   }, {
     sequelize,
     modelName: 'Review',
-    tableName: 'reviews'
+    tableName: 'reviews', 
+    timestamps: false
   });
 
 
@@ -218,7 +221,8 @@ ReviewActions.init({
 }, {
   sequelize,
   modelName: 'ReviewActions',
-  tableName: 'review_actions'
+  tableName: 'review_actions',
+  timestamps: false
 });
 
 

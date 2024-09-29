@@ -3,6 +3,7 @@ import { testDBConnection } from "./db_services/db_connection";
 import dump from "./db_services/backup";
 import logger from "./other_services/winstonLogger";
 import authRouter from "./routes/authRouter";
+import reviewRouter from "./routes/reviewRouter";
 
 const app = express();
 
@@ -10,11 +11,10 @@ const app = express();
 //dump;
 
 app.use(authRouter);
+app.use(reviewRouter);
 
 
-
-
-process.on('SIGINT', (code) => {
+process.on('SIGINT', () => {
     logger.end(); 
     console.log('See ya later silly');
     process.exit(0);

@@ -11,6 +11,35 @@ import { log } from "console";
 const router = express.Router();
 router.use(express.json()); //middleware for at pars JSON
 
+
+router.post("/auth/signup", async (req, res) => {
+    try {
+        const result: any = await createUser(req.body.name, req.body.lastname, req.body.email, req.body.password);
+      
+        let jwtUser = {
+            "id": result.id,
+            "name": result.name,
+            "lastname": result.lastname,
+            "email": result.email,
+            "password": result.password
+        }
+        let resultWithToken = {"authToken": jwt.sign({ user: jwtUser }, "secret"), "user": result};
+        res.status(200).send(resultWithToken);
+        console.log("Only token: ", jwtUser)
+        return resultWithToken;
+    } catch (err:any) {
+        if (err.code == 409){
+            res.status(409).send(err.message);
+            return err.message;
+        } else {
+            res.status(500).send("Something went wrong while creating user ");
+            console.log("Error: ", err)
+            logger.error(err.message);
+            return "Something went wrong while creating user (returning 500)";
+        }
+    }
+})
+
 router.post("/auth/login", async (req, res) => {
     try {
         const result: any = await getUser(req.body.email, req.body.password);
@@ -42,35 +71,6 @@ router.post("/auth/login", async (req, res) => {
         }
     }
 }); 
-
-
-router.post("/auth/signup", async (req, res) => {
-    try {
-        const result: any = await createUser(req.body.name, req.body.lastname, req.body.email, req.body.password);
-      
-        let jwtUser = {
-            "id": result.id,
-            "name": result.name,
-            "lastname": result.lastname,
-            "email": result.email,
-            "password": result.password
-        }
-        let resultWithToken = {"authToken": jwt.sign({ user: jwtUser }, "secret"), "user": result};
-        res.status(200).send(resultWithToken);
-        console.log("Only token: ", jwtUser)
-        return resultWithToken;
-    } catch (err:any) {
-        if (err.code == 409){
-            res.status(409).send(err.message);
-            return err.message;
-        } else {
-            res.status(500).send("Something went wrong while creating user ");
-            console.log("Error: ", err)
-            logger.error(err.message);
-            return "Something went wrong while creating user (returning 500)";
-        }
-    }
-})
 
 
 export async function getUser(email: string, password: string) {
