@@ -100,11 +100,7 @@ export async function getUser(email: string, password: string) {
         }
 
         const userData = user.get(); // Extract user data
-
-        // Compare passwords
-        if (!bcrypt.compareSync(password, userData.password)) {
-            throw new Error("Incorrect email or password");
-        }
+        
 
         return userData;
     } catch (error) {

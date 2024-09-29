@@ -11,7 +11,7 @@ const app = express();
 //dump;
 
 app.use(authRouter);
-app.use(reviewRouter);
+//app.use(reviewRouter);
 
 
 process.on('SIGINT', () => {

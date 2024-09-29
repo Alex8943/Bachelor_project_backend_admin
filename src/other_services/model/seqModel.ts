@@ -1,253 +1,245 @@
-import { DataTypes, Model, Optional } from 'sequelize';
-import sequelize from "../sequelizeConnection";
+import { DataTypes, Model } from 'sequelize';
+import sequelize from "../sequelizeConnection"
 
-interface RoleAttributes {
-  id: number;
-  name: string;
-}
-
-interface RoleCreationAttributes extends Optional<RoleAttributes, 'id'> {}
-
-class Role extends Model<RoleAttributes, RoleCreationAttributes> implements RoleAttributes {
-  public id!: number;
-  public name!: string;
-}
+// Role Model
+class Role extends Model {}
 
 Role.init({
   id: {
-    type: DataTypes.INTEGER.UNSIGNED,
-    autoIncrement: true,
-    primaryKey: true
+    type: DataTypes.BIGINT,
+    primaryKey: true,
+    autoIncrement: true
   },
   name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+}, {
+  sequelize,
+  modelName: 'role',
+  timestamps: false
+});
+
+// User Model
+class User extends Model {}
+
+User.init({
+  id: {
+    type: DataTypes.BIGINT,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  name: {
+    type: DataTypes.STRING(20),
+    allowNull: false
+  },
+  lastname: {
+    type: DataTypes.STRING(20),
+    allowNull: false
+  },
+  email: {
+    type: DataTypes.STRING(50),
+    allowNull: false
+  },
+  password: {
     type: DataTypes.STRING(255),
     allowNull: false
+  },
+  role_fk: {
+    type: DataTypes.BIGINT,
+    references: {
+      model: 'role',
+      key: 'id'
+    }
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
+  deleted_at: {
+    type: DataTypes.DATE
+  },
+  verified_at: {
+    type: DataTypes.DATE
+  },
+  verification_key: {
+    type: DataTypes.STRING(36)
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
+  is_blocked: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, {
   sequelize,
-  modelName: 'Role',
-  tableName: 'role',
+  modelName: 'user',
+  paranoid: true,  // Enables soft delete (tombstone pattern)
+  deletedAt: 'deleted_at',
   timestamps: false
 });
 
-interface UserAttributes {
-    id: number;
-    name: string;
-    lastname: string;
-    email: string;
-    password: string;
-    role_fk?: number;
-  }
-  
-  interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
-  
-  class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
-    public id!: number;
-    public name!: string;
-    public lastname!: string;
-    public email!: string;
-    public password!: string;
-    public role_fk?: number;
-  }
-  
-  User.init({
-    id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    name: {
-      type: DataTypes.STRING(20),
-      allowNull: false
-    },
-    lastname: {
-      type: DataTypes.STRING(20),
-      allowNull: false
-    },
-    email: {
-      type: DataTypes.STRING(50),
-      allowNull: false
-    },
-    password: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    },
-    role_fk: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      references: {
-        model: Role,
-        key: 'id'
-      },
-      onDelete: 'SET NULL'
-    }
-  }, {
-    sequelize,
-    modelName: 'User',
-    tableName: 'users',
-    timestamps: false, 
-  });
+// Review Model
+class Review extends Model {}
 
-  interface MediaAttributes {
-    id: number;
-    youtube?: string;
-    podcast?: string;
-    movie?: string;
-  }
-  
-  interface MediaCreationAttributes extends Optional<MediaAttributes, 'id'> {}
-  
-  class Media extends Model<MediaAttributes, MediaCreationAttributes> implements MediaAttributes {
-    public id!: number;
-    public youtube?: string;
-    public podcast?: string;
-    public movie?: string;
-  }
-  
-  Media.init({
-    id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    youtube: {
-      type: DataTypes.STRING(255)
-    },
-    podcast: {
-      type: DataTypes.STRING(255)
-    },
-    movie: {
-      type: DataTypes.STRING(255)
-    }
-  }, {
-    sequelize,
-    modelName: 'Media',
-    tableName: 'media',
-    timestamps: false
-  });
-
-
-interface ReviewAttributes {
-    id: number;
-    media_fk?: number;
-    title: string;
-    description: string;
-    user_fk: number;
-  }
-  
-  interface ReviewCreationAttributes extends Optional<ReviewAttributes, 'id'> {}
-  
-  class Review extends Model<ReviewAttributes, ReviewCreationAttributes> implements ReviewAttributes {
-    public id!: number;
-    public media_fk?: number;
-    public title!: string;
-    public description!: string;
-    public user_fk!: number;
-  }
-  
-  Review.init({
-    id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    media_fk: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      references: {
-        model: Media,
-        key: 'id'
-      },
-      onDelete: 'SET NULL'
-    },
-    title: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    description: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    user_fk: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: false,
-      references: {
-        model: User,
-        key: 'id'
-      },
-      onDelete: 'CASCADE'
-    }
-  }, {
-    sequelize,
-    modelName: 'Review',
-    tableName: 'reviews', 
-    timestamps: false
-  });
-
-
-  interface ReviewActionsAttributes {
-  action_user_fk: number;
-  action_review_fk: number;
-  action_gesture: number;
-}
-
-class ReviewActions extends Model<ReviewActionsAttributes> implements ReviewActionsAttributes {
-  public action_user_fk!: number;
-  public action_review_fk!: number;
-  public action_gesture!: number;
-}
-
-ReviewActions.init({
-  action_user_fk: {
-    type: DataTypes.INTEGER.UNSIGNED,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'id'
-    },
-    onDelete: 'CASCADE'
+Review.init({
+  id: {
+    type: DataTypes.BIGINT,
+    primaryKey: true,
+    autoIncrement: true
   },
-  action_review_fk: {
-    type: DataTypes.INTEGER.UNSIGNED,
-    allowNull: false,
+  media_fk: {
+    type: DataTypes.BIGINT,
     references: {
-      model: Review,
+      model: 'media',
       key: 'id'
-    },
-    onDelete: 'CASCADE'
+    }
   },
-  action_gesture: {
-    type: DataTypes.INTEGER.UNSIGNED,
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  genre: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  user_fk: {
+    type: DataTypes.BIGINT,
+    references: {
+      model: 'user',
+      key: 'id'
+    }
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
+  deleted_at: {
+    type: DataTypes.DATE
+  },
+  is_blocked: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  }
+}, {
+  sequelize,
+  modelName: 'review',
+  paranoid: true,  // Enables soft delete (tombstone pattern)
+  deletedAt: 'deleted_at',
+  timestamps: false
+});
+
+// MediaType Model
+class MediaType extends Model {}
+
+MediaType.init({
+  id: {
+    type: DataTypes.BIGINT,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  media_type: {
+    type: DataTypes.STRING,
     allowNull: false
   }
 }, {
   sequelize,
-  modelName: 'ReviewActions',
-  tableName: 'review_actions',
+  modelName: 'media_type',
   timestamps: false
 });
 
+// Media Model
+class Media extends Model {}
 
+Media.init({
+  id: {
+    type: DataTypes.BIGINT,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  media_type_fk: {
+    type: DataTypes.BIGINT,
+    references: {
+      model: 'media_type',
+      key: 'id'
+    }
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  }
+}, {
+  sequelize,
+  modelName: 'media',
+  timestamps: false
+});
 
+// ReviewAction Model
+class ReviewAction extends Model {}
 
-User.hasMany(ReviewActions, { foreignKey: 'action_user_fk' });
-Review.hasMany(ReviewActions, { foreignKey: 'action_review_fk' });
-ReviewActions.belongsTo(User, { foreignKey: 'action_user_fk' });
-ReviewActions.belongsTo(Review, { foreignKey: 'action_review_fk' });
-  
-User.hasMany(Review, { foreignKey: 'user_fk' });
-Review.belongsTo(User, { foreignKey: 'user_fk' });
-Media.hasMany(Review, { foreignKey: 'media_fk' });
-Review.belongsTo(Media, { foreignKey: 'media_fk' });
-  
-Role.hasMany(User, { foreignKey: 'role_fk' });
-User.belongsTo(Role, { foreignKey: 'role_fk' });
-export {
-    User,
-    Role,
-    Media,
-    Review,
-    ReviewActions
-}
+ReviewAction.init({
+  action_user_fk: {
+    type: DataTypes.BIGINT,
+    references: {
+      model: 'user',
+      key: 'id'
+    }
+  },
+  action_review_fk: {
+    type: DataTypes.BIGINT,
+    references: {
+      model: 'review',
+      key: 'id'
+    }
+  },
+  action_gesture: {
+    type: DataTypes.INTEGER, // 1 for like, 2 for dislike, 3 for heart
+    allowNull: false
+  }
+}, {
+  sequelize,
+  modelName: 'review_action',
+  timestamps: false
+});
 
+// Associations (Defining Foreign Key Relationships)
 
+// A Role can have many Users
+Role.hasMany(User, { foreignKey: 'role_fk', as: 'users' });
+User.belongsTo(Role, { foreignKey: 'role_fk', as: 'role' });
 
-  
+// A User can have many Reviews
+User.hasMany(Review, { foreignKey: 'user_fk', as: 'reviews' });
+Review.belongsTo(User, { foreignKey: 'user_fk', as: 'user' });
+
+// A MediaType can have many Media
+MediaType.hasMany(Media, { foreignKey: 'media_type_fk', as: 'media' });
+Media.belongsTo(MediaType, { foreignKey: 'media_type_fk', as: 'media_type' });
+
+// A Media can have many Reviews
+Media.hasMany(Review, { foreignKey: 'media_fk', as: 'reviews' });
+Review.belongsTo(Media, { foreignKey: 'media_fk', as: 'media' });
+
+// A User can perform many ReviewActions
+User.hasMany(ReviewAction, { foreignKey: 'action_user_fk', as: 'actions' });
+ReviewAction.belongsTo(User, { foreignKey: 'action_user_fk', as: 'user' });
+
+// A Review can have many ReviewActions
+Review.hasMany(ReviewAction, { foreignKey: 'action_review_fk', as: 'actions' });
+ReviewAction.belongsTo(Review, { foreignKey: 'action_review_fk', as: 'review' });
+
+export { Role, User, Review, MediaType, Media, ReviewAction };
