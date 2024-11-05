@@ -4,14 +4,17 @@ import dump from "./db_services/backup";
 import logger from "./other_services/winstonLogger";
 import authRouter from "./routes/authRouter";
 import reviewRouter from "./routes/reviewRouter";
+import cors from 'cors';
 
 const app = express();
+
+app.use(cors());
 
 //testDBConnection();
 //dump;
 
 app.use(authRouter);
-//app.use(reviewRouter);
+app.use(reviewRouter);
 
 
 process.on('SIGINT', () => {

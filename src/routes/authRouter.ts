@@ -5,7 +5,6 @@ import bcrypt from "bcrypt";
 import { User } from "../other_services/model/seqModel";
 import { QueryTypes } from 'sequelize';
 import logger from "../other_services/winstonLogger";
-import { log } from "console";
 
 
 const router = express.Router();
@@ -116,18 +115,18 @@ export async function createUser(name: string, lastname: string, email: string, 
             throw {code: 409, message: "User already exists"};
         }
         let hash_password = bcrypt.hashSync(password, 10);
-        const result = await sequelize.query('INSERT INTO users (name, lastname, email, password) VALUES (?, ?, ?, ?)',
-        {
-            replacements: [name, lastname, email, hash_password],
-            type: QueryTypes.RAW,
-            model: User
+        
+        const result = await User.create({
+            name: name,
+            lastname: lastname,
+            email: email,
+            password: hash_password,
+            role_fk: 1,
         });
 
         console.log("Created user: ", result);
         
         return result;
-
-
     }catch(error){
         throw error;
     }
