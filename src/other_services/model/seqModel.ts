@@ -270,11 +270,13 @@ ReviewActions.init(
         user_fk: {
             type: DataTypes.BIGINT.UNSIGNED,
             allowNull: false,
+            primaryKey: true, // Define as part of composite primary key
             references: { model: 'user', key: 'id' }, // foreign key for User
         },
         review_fk: {
             type: DataTypes.BIGINT.UNSIGNED,
             allowNull: false,
+            primaryKey: true, // Define as part of composite primary key
             references: { model: 'review', key: 'id' }, // foreign key for Review
         },
         review_gesture: {
@@ -355,4 +357,7 @@ Genre.belongsToMany(Review, {
     foreignKey: 'genre_fk',  // Explicitly setting the foreign key in the review_genres table
     otherKey: 'review_fk',   // Setting the other foreign key for review
 });
+
+ReviewActions.belongsTo(Review, { foreignKey: 'review_fk' });
+Review.hasMany(ReviewActions, { foreignKey: 'review_fk' });
 

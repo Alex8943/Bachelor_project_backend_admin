@@ -5,6 +5,7 @@ import logger from "./other_services/winstonLogger";
 import authRouter from "./routes/authRouter";
 import reviewRouter from "./routes/reviewRouter";
 import genreRouter from "./routes/genreRouter";
+import actionRouter from "./routes/actionRouter";
 import cors from 'cors';
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(cors());
 app.use(authRouter);
 app.use(reviewRouter);
 app.use(genreRouter);
+app.use(actionRouter);
 
 process.on('SIGINT', () => {
     logger.end(); 
@@ -27,6 +29,4 @@ process.on('SIGINT', () => {
 app.listen(3000, () => {
     console.log('Server is running on localhost:3000');
 });
-
-
 
