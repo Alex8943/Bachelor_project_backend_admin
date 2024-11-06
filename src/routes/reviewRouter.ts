@@ -56,9 +56,9 @@ router.post("/review", async (req, res) => {
 });
 
 export async function createReview(values: any) {
-    const t = await sequelize.transaction(); // Use transaction for atomic operations
+    const t = await sequelize.transaction(); 
+
     try {
-         // Execute the SQL command to insert a new review
          const [review] = await sequelize.query(
             'INSERT INTO `review` (`id`, `media_fk`, `title`, `description`, `platform_fk`, `user_fk`, `createdAt`, `updatedAt`, `isBlocked`) VALUES (DEFAULT, ?, ?, ?, ?, ?, NOW(), NOW(), FALSE);',
             {
@@ -74,45 +74,76 @@ export async function createReview(values: any) {
             }
         );
         
-        // If genres are provided, associate them with the review
+
         if (values.genre_ids && values.genre_ids.length > 0) {
             const reviewGenreRecords = values.genre_ids.map((genre_id: number) => ({
-                review_fk: review,  // Sequelize returns the auto-generated ID from the insert
+                review_fk: review,  
                 genre_fk: genre_id,
             }));
             await ReviewGenres.bulkCreate(reviewGenreRecords, { transaction: t });
         }
 
-        await t.commit(); // Commit the transaction
+        await t.commit(); 
         logger.info("Review created successfully");
-        return { reviewId: review }; // Return the review ID or other relevant information
+        return { reviewId: review };
 
     } catch (err) {
-        await t.rollback(); // Rollback in case of error
+        await t.rollback();
         logger.error("Error during review creation: ", err);
         throw err;
     }
 }
 
 
-/*
-// Update a review
-export async function updateReview(review_id: number){
+router.put("/update/:id/review", async (req, res) => {
     try{
-        const review = await Reviews.findByPk(review_id);
-        if (!review) {
-            throw new Error("Review not found");
-        }
-        review.title = "Updated title";
-        await review.save();
-        logger.info("Review updated successfully");
-        return review;
+        const reviewId = parseInt(req.params.id); // Extract `id` from the URL as a number
+        const result = await updateReview(reviewId, req.body); // Pass `reviewId` and `req.body` separately
+
+        res.status(200).send(result);
+
     }catch(error){
-        logger.error("Error during review creation: ", error);
+        console.error("error creating review: ", error)
+        res.status(500).send("Something went wrong with updating the review " )
+    }
+})
+
+export async function updateReview(id: number, data: any) {
+    try {
+        // Update review by `id` with new `title` and `description` from `data`
+        const [updatedCount] = await Reviews.update(
+            {
+                title: data.title,
+                description: data.description
+            },
+            {
+                where: { id: id }
+            }
+        );
+
+   
+        await ReviewGenres.destroy({ where: { review_fk: id } });
+
+        if (data.genre_ids && data.genre_ids.length > 0) {
+            const reviewGenreRecords = data.genre_ids.map((genre_id: number) => ({
+                review_fk: id,
+                genre_fk: genre_id,
+            }));
+            await ReviewGenres.bulkCreate(reviewGenreRecords);
+        }
+
+        logger.info("Review updated successfully");
+
+
+        return { message: "Review updated successfully" };
+    } catch (error) {
+        logger.error("Error during review update: ", error);
         throw error;
     }
 }
-    */
+
+
+
 
 
 export default router;

@@ -4,6 +4,7 @@ import dump from "./db_services/backup";
 import logger from "./other_services/winstonLogger";
 import authRouter from "./routes/authRouter";
 import reviewRouter from "./routes/reviewRouter";
+import genreRouter from "./routes/genreRouter";
 import cors from 'cors';
 
 const app = express();
@@ -15,7 +16,7 @@ app.use(cors());
 
 app.use(authRouter);
 app.use(reviewRouter);
-
+app.use(genreRouter);
 
 process.on('SIGINT', () => {
     logger.end(); 

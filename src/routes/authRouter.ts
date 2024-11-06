@@ -1,17 +1,27 @@
-import express from "express"; 
-import sequelize from "../other_services/sequelizeConnection";
+import express, {Request, Response, NextFunction} from "express"; 
+import { signUpSchema, loginSchema } from "./validator";
+import Joi from "joi"
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { User } from "../other_services/model/seqModel";
-import { QueryTypes } from 'sequelize';
 import logger from "../other_services/winstonLogger";
+
+
 
 
 const router = express.Router();
 router.use(express.json()); //middleware for at pars JSON
 
+const validation = (schema: Joi.Schema) => (req: Request, res: Response, next: NextFunction) => {
+    const { error } = schema.validate(req.body);
+    if(error){
+        return res.status(400).send(error.details[0].message);
+    }
+    next();
+}
 
-router.post("/auth/signup", async (req, res) => {
+
+router.post("/auth/signup", validation(signUpSchema), async (req, res) => {
     try {
         const result: any = await createUser(req.body.name, req.body.lastname, req.body.email, req.body.password);
       
@@ -39,7 +49,7 @@ router.post("/auth/signup", async (req, res) => {
     }
 })
 
-router.post("/auth/login", async (req, res) => {
+router.post("/auth/login", validation(loginSchema), async (req, res) => {
     try {
         const result: any = await getUser(req.body.email, req.body.password);
         let jwtUser = {
