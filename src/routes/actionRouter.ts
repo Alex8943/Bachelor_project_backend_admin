@@ -64,7 +64,7 @@ export async function likeReview(values: any) {
             where: {
                 user_fk: values.userId,
                 review_fk: values.reviewId,
-                review_gesture: 1 // Assuming 1 represents "like"
+                review_gesture: 1
             }
         });
 

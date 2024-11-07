@@ -6,6 +6,7 @@ import authRouter from "./routes/authRouter";
 import reviewRouter from "./routes/reviewRouter";
 import genreRouter from "./routes/genreRouter";
 import actionRouter from "./routes/actionRouter";
+import userRouter from "./routes/userRouter";
 import cors from 'cors';
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(authRouter);
 app.use(reviewRouter);
 app.use(genreRouter);
 app.use(actionRouter);
+app.use(userRouter);
 
 process.on('SIGINT', () => {
     logger.end(); 
