@@ -102,7 +102,7 @@ router.get("/review/:title", async (req, res) => {
     try {
         // Access title from req.params instead of req.body
         const result = await searchReviewByTitle(req.params);
-        
+        console.log("Result: ", result)
 
         res.status(200).send(result); 
     } catch (error) {
