@@ -7,7 +7,9 @@ import reviewRouter from "./routes/reviewRouter";
 import genreRouter from "./routes/genreRouter";
 import actionRouter from "./routes/actionRouter";
 import userRouter from "./routes/userRouter";
+import roleRouter from "./routes/roleRouter";
 import cors from 'cors';
+
 
 const app = express();
 
@@ -21,6 +23,7 @@ app.use(reviewRouter);
 app.use(genreRouter);
 app.use(actionRouter);
 app.use(userRouter);
+app.use(roleRouter);
 
 process.on('SIGINT', () => {
     logger.end(); 
