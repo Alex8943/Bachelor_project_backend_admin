@@ -3,6 +3,7 @@ import { Review as Reviews, User, Media, Genre, ReviewGenres } from "../other_se
 import logger from "../other_services/winstonLogger";
 import sequelize from "../other_services/sequelizeConnection";
 import { QueryTypes } from "sequelize";
+import conn from "../db_services/db_connection";
 
 const router = express.Router();
 
@@ -95,6 +96,43 @@ export async function createReview(values: any) {
 }
 
 
+// Route to search for a review by title
+router.get("/review/:title", async (req, res) => {
+    
+    try {
+        // Access title from req.params instead of req.body
+        const result = await searchReviewByTitle(req.params);
+        
+
+        res.status(200).send(result); 
+    } catch (error) {
+        console.error("Error searching review by title: ", error);
+        res.status(500).send("Something went wrong while searching the review by title");
+    }
+});
+
+// Function to search review by title
+export async function searchReviewByTitle(value: any) {
+
+    const connection = await conn.getConnection();
+    try {
+        const result = await connection.query(
+            'SELECT * FROM stohtpsd_company.review WHERE title=?',
+            [value.title]
+        );
+        logger.info("Review fetched successfully");
+
+        
+        return result[0];
+    } catch (error) {
+        console.error("Error searching review by title: ", error);
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
+
+
 router.put("/update/:id/review", async (req, res) => {
     try{
         const reviewId = parseInt(req.params.id); // Extract `id` from the URL as a number
@@ -141,6 +179,9 @@ export async function updateReview(id: number, data: any) {
         throw error;
     }
 }
+
+
+
 
 
 
