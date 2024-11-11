@@ -1,5 +1,5 @@
 import express from 'express';
-import { User } from '../other_services/model/seqModel';
+import { User, Review } from '../other_services/model/seqModel';
 import Logger from '../other_services/winstonLogger';
 import sequelize from '../other_services/sequelizeConnection';
 import conn from '../db_services/db_connection';
@@ -32,7 +32,6 @@ export async function getUsers() {
 
 
 //Get specfic user where role_fk = 3
-// Use this to query against the database select * from stohtpsd_company.user where role_fk = 3;
 router.get('/user/:id', async (req, res) => {
     try {
         const users = await getUserById(req.params.id);
@@ -57,6 +56,35 @@ export async function getUserById(value: any){
         throw error;
     }
 }
+
+//Get all reviews made by a specific user
+router.get("/user/:id/reviews", async (req, res) => {
+    try{
+        
+        const reviews = await getReviewsByUserId(req.params.id);
+        console.log('Specific reviews fetched successfully');
+        res.status(200).send(reviews);
+        
+    }catch(error){
+        console.error('Error fetching specific reviews:', error);
+        res.status(500).send('Something went wrong while fetching specific reviews');
+    
+    }});
+
+export async function getReviewsByUserId(value: any){
+    try{
+
+        const reviews = await Review.findAll({
+            where: { user_fk: value }, // Filter reviews by user foreign key
+        });
+        return reviews;
+
+    }catch(error){
+        Logger.error("Error fetching specific reviews: ", error);
+        throw error;
+    }
+
+};
 
 
 
