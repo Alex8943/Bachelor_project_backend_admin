@@ -1,9 +1,9 @@
 import express from 'express';
-//import User from '../other_services/model/seqModel';
 import { User } from '../other_services/model/seqModel';
 import Logger from '../other_services/winstonLogger';
 import sequelize from '../other_services/sequelizeConnection';
 import conn from '../db_services/db_connection';
+import { get } from 'http';
 
 const router = express.Router();
 
@@ -33,10 +33,9 @@ export async function getUsers() {
 
 //Get specfic user where role_fk = 3
 // Use this to query against the database select * from stohtpsd_company.user where role_fk = 3;
-/*
-router.get('/customers', async (req, res) => {
+router.get('/user/:id', async (req, res) => {
     try {
-        const users = await getSpecificUser();
+        const users = await getUserById(req.params.id);
         console.log('Specific users fetched successfully');
         res.status(200).send(users);
     } catch (error) {
@@ -46,19 +45,19 @@ router.get('/customers', async (req, res) => {
 
 
 
-export async function getSpecificUser() {
-    const connection = await conn.getConnection();
+export async function getUserById(value: any){
     try{
-        const result = await connection.query('select * from stohtpsd_company.user where role_fk = 3')
+        const userResult = await User.findOne({
+            where: {id: value}
+        });
         Logger.info("Specific users fetched successfully");
-        return result[0];
-    
+        return userResult;
     }catch(error){
         Logger.error("Error fetching specific users: ", error);
         throw error;
     }
-};
-*/
+}
+
 
 
 

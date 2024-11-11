@@ -2,7 +2,7 @@ import express from "express";
 import { Review as Reviews, User, Media, Genre, ReviewGenres } from "../other_services/model/seqModel";
 import logger from "../other_services/winstonLogger";
 import sequelize from "../other_services/sequelizeConnection";
-import { QueryTypes } from "sequelize";
+import { NumberDataTypeConstructor, QueryTypes } from "sequelize";
 import conn from "../db_services/db_connection";
 
 const router = express.Router();
@@ -133,7 +133,7 @@ export async function searchReviewByTitle(value: any) {
 }
 
 
-router.put("/update/:id/review", async (req, res) => {
+router.put("/update/review/:id", async (req, res) => {
     try{
         const reviewId = parseInt(req.params.id); // Extract `id` from the URL as a number
         const result = await updateReview(reviewId, req.body); // Pass `reviewId` and `req.body` separately
@@ -181,9 +181,85 @@ export async function updateReview(id: number, data: any) {
 }
 
 
+//Get one review 
+router.get("/getReview/:id", async (req, res) => {
+    try {
+        console.log("TEST")
+
+        const result = await getOneReview(req.params);
+
+        res.status(200).send(result);
+    } catch (err) {
+        console.error("Error fetching review: ", err);
+        res.status(500).send("Something went wrong while fetching the review");
+    }
+});
 
 
+export async function getOneReview(value: any) {
+    try {
+        const result = await Reviews.findOne({
+            where: { id: value.id},
+            include: [
+                {
+                    model: User,
+                    attributes: ["name"],
+                },
+                {
+                    model: Media,
+                    attributes: ["name"],
+                },
+                {
+                    model: Genre,
+                    attributes: ["name"],
+                },
+            ]
+        });
+        logger.info("Found review: ", result);
+        return result;
+    } catch (err) {
+        logger.error("ERROR: \n", err);
+        throw err;
+    }
+}
 
+
+// Delete review endpoint
+//Soft delete deos not work
+router.delete("/delete/review/:id", async (req, res) => {
+    try {
+        const result = await deleteReview(req.params.id); // Pass only the ID
+        console.log("Deleting review with ID: ", req.params.id);
+
+        res.status(200).send(result);
+    } catch (error) {
+        console.error("Error deleting review: ", error);
+        res.status(500).send("Something went wrong with deleting the review.");
+    }
+});
+
+export async function deleteReview(id: any) { // Treat id as the actual ID
+    try {
+        // Check if the review exists
+        const review = await Reviews.findByPk(id);
+        if (!review) {
+            return "Review does not exist";
+        } else {
+            console.log("Review exists");
+
+            // Soft delete (sets deletedAt instead of hard deleting)
+            await Reviews.destroy({
+                where: { id },
+                force: false, // Explicitly specify soft delete
+            });
+            logger.info("Review soft-deleted successfully");
+            return "Review soft-deleted successfully";
+        }
+    } catch (error) {
+        logger.error("Error during review deletion: ", error);
+        throw error;
+    }
+}
 
 
 
