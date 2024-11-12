@@ -5,9 +5,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { User } from "../other_services/model/seqModel";
 import logger from "../other_services/winstonLogger";
-
-
-
+import { Role } from "../other_services/model/seqModel";
 
 const router = express.Router();
 router.use(express.json()); //middleware for at pars JSON
@@ -30,7 +28,7 @@ router.post("/auth/signup", validation(signUpSchema), async (req, res) => {
             "name": result.name,
             "lastname": result.lastname,
             "email": result.email,
-            "password": result.password
+            "password": result.password,
         }
         let resultWithToken = {"authToken": jwt.sign({ user: jwtUser }, "secret"), "user": result};
         res.status(200).send(resultWithToken);
@@ -57,11 +55,14 @@ router.post("/auth/login", validation(loginSchema), async (req, res) => {
             "name": result.name,
             "lastname": result.lastname,
             "email": result.email,
-            "password": result.password
+            "password": result.password,
+            "role_fk": result.role_fk, // Include role_fk in the JWT payload
+            "roleName": result.role ? result.role.name : null // Include role name if available
         }
+        console.log("Role fk: ", jwtUser.role_fk);
         let resultWithToken = {"authToken": jwt.sign({ user: jwtUser }, "secret"), "user": result};
         res.status(200).send(resultWithToken);
-        console.log("User: ", jwtUser.name, ", has signed in")
+        console.log("User:", jwtUser.name, "has signed in");
         return resultWithToken;
     }catch(err:any){
         if (err.message == "No user found with the given credentials"){
@@ -84,32 +85,26 @@ router.post("/auth/login", validation(loginSchema), async (req, res) => {
 
 export async function getUser(email: string, password: string) {
     try {
-        // Fetch user ID using the email
-        const user_id_data = await User.findOne({
-            where: { email: email },
-            attributes: ["id"]
-        });
-
-        const userId = user_id_data?.get("id");
-        console.log("User's id: ", userId);
-
-        if (!userId) {
-            logger.error("No user found with the given credentials");
-            console.log("No user found with the given credentials");
-        }
-
-        // Fetch user details using the ID
+        // Fetch user details using the email, including the role_fk
         const user = await User.findOne({
-            where: { id: userId },
-            attributes: ["name", "lastname", "password"], // Ensure password is included
+            where: { email: email },
+            attributes: ["id", "name", "lastname", "password", "role_fk"], // Include role_fk in attributes
+            include: [
+                {
+                    model: Role, // Assumes you have a Role model associated with User
+                    attributes: ["name"], // Include the role name if you need it
+                }
+            ]
         });
 
         if (!user) {
+            logger.error("No user found with the given credentials");
+            console.log("No user found with the given credentials");
             throw new Error("No user found with the given credentials");
         }
 
-        const userData = user.get(); // Extract user data
-        
+        const userData = user.get(); // Extract user data, including role_fk and role name
+        console.log("User's data with role_fk and role name:", userData); // Log the data to verify
 
         return userData;
     } catch (error) {
@@ -117,6 +112,7 @@ export async function getUser(email: string, password: string) {
         throw error;
     }
 }
+
 
 export async function createUser(name: string, lastname: string, email: string, password: string) {
     try{
