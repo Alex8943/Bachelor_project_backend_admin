@@ -248,6 +248,7 @@ export async function deleteReview(id: any) { // Treat id as the actual ID
             console.log("Review exists");
 
             // Soft delete (sets deletedAt instead of hard deleting)
+            // TODO: Change to update for soft delete 
             await Reviews.destroy({
                 where: { id },
                 force: false, // Explicitly specify soft delete
