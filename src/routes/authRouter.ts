@@ -6,6 +6,9 @@ import bcrypt from "bcrypt";
 import { User } from "../other_services/model/seqModel";
 import logger from "../other_services/winstonLogger";
 import { Role } from "../other_services/model/seqModel";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const router = express.Router();
 router.use(express.json()); //middleware for at pars JSON
@@ -83,16 +86,17 @@ router.post("/auth/login", validation(loginSchema), async (req, res) => {
 }); 
 
 
+
 export async function getUser(email: string, password: string) {
     try {
         // Fetch user details using the email, including the role_fk
         const user = await User.findOne({
             where: { email: email },
-            attributes: ["id", "name", "lastname", "password", "role_fk"], // Include role_fk in attributes
+            attributes: ["id", "name", "lastname", "email", "password", "role_fk"], // Include role_fk in attributes
             include: [
                 {
-                    model: Role, // Assumes you have a Role model associated with User
-                    attributes: ["name"], // Include the role name if you need it
+                    model: Role,
+                    attributes: ["name"],
                 }
             ]
         });
@@ -137,6 +141,11 @@ export async function createUser(name: string, lastname: string, email: string, 
         throw error;
     }
 }
+
+
+
+
+
 
 export default router;
 
