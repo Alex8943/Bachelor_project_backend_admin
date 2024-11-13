@@ -140,9 +140,56 @@ export async function createUser(name: string, lastname: string, email: string, 
     }catch(error){
         throw error;
     }
+};
+
+
+router.put("/auth/updateUser", async (req, res) => {
+    try {
+        const result = await updateUser(req.body);
+        res.status(200).send(result);
+    } catch (err) {
+        res.status(500).send("Something went wrong while updating user");
+        console.log("Error: ", err);
+    }
+});
+
+
+export async function updateUser(value: any) {
+    try {
+        // Check if the user exists
+        const user = await User.findOne({ where: { id: value.id } });
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        // Prepare the updated fields
+        const updatedFields: any = {
+            name: value.name,
+            lastname: value.lastname,
+        };
+
+        // Hash the password if it's being updated
+        if (value.password) {
+            const hashedPassword = await bcrypt.hash(value.password, 10);
+            updatedFields.password = hashedPassword;
+        }
+
+        // Update the user
+        await User.update(updatedFields, { where: { id: value.id } });
+
+        // Fetch the updated user details
+        const updatedUser = await User.findOne({
+            where: { id: value.id },
+            attributes: ['id', 'name', 'lastname', 'password'], // Return only the necessary fields
+        });
+
+        console.log("User updated successfully:", updatedUser);
+        return updatedUser;
+    } catch (error) {
+        console.error("Error updating user:", error);
+        throw error;
+    }
 }
-
-
 
 
 
