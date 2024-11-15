@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../sequelizeConnection"; // Adjust the import path for your Sequelize connection
+
 // User Model
 export class User extends Model {
     declare id: number;
@@ -76,7 +77,6 @@ User.init({
     tableName: 'user',
     timestamps: true,
     paranoid: true, // Enables soft delete
-    
 });
 
 // Review Model
@@ -170,7 +170,7 @@ Genre.init(
         tableName: 'genre',
         timestamps: false,
         paranoid: true,
-    },
+    }
 );
 
 // Media Model
@@ -213,19 +213,20 @@ ReviewGenres.init(
             type: DataTypes.BIGINT.UNSIGNED,
             allowNull: false,
             references: { model: 'review', key: 'id' }, // foreign key for Review
+            primaryKey: true, // Set as primary key
         },
         genre_fk: {
             type: DataTypes.BIGINT.UNSIGNED,
             allowNull: false,
             references: { model: 'genre', key: 'id' }, // foreign key for Genre
+            primaryKey: true, // Set as primary key
         },
     },
     {
         sequelize,
         modelName: 'ReviewGenres',
         tableName: 'review_genres',
-        timestamps: false,
-        paranoid: true,
+        timestamps: false, // Disable timestamps for junction table
     }
 );
 
@@ -338,14 +339,11 @@ User.belongsTo(Role, { foreignKey: 'role_fk' });
 User.hasMany(Review, { foreignKey: 'user_fk' });
 Review.belongsTo(User, { foreignKey: 'user_fk' });
 
-// One-to-Many relationship between User and Review
-User.hasMany(Review, { foreignKey: 'user_fk' });
-Review.belongsTo(User, { foreignKey: 'user_fk' });
-
 // One-to-Many relationship between Media and Review
 Media.hasMany(Review, { foreignKey: 'media_fk' });
 Review.belongsTo(Media, { foreignKey: 'media_fk' });
 
+// Many-to-Many relationship between Review and Genre through ReviewGenres
 Review.belongsToMany(Genre, {
     through: ReviewGenres,
     foreignKey: 'review_fk', // Explicitly setting the foreign key in the review_genres table
@@ -358,6 +356,6 @@ Genre.belongsToMany(Review, {
     otherKey: 'review_fk',   // Setting the other foreign key for review
 });
 
+// One-to-Many relationship between Review and ReviewActions
 ReviewActions.belongsTo(Review, { foreignKey: 'review_fk' });
 Review.hasMany(ReviewActions, { foreignKey: 'review_fk' });
-

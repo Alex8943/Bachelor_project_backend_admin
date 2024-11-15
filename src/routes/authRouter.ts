@@ -63,6 +63,7 @@ router.post("/auth/login", validation(loginSchema), async (req, res) => {
             "roleName": result.role ? result.role.name : null // Include role name if available
         }
         console.log("Role fk: ", jwtUser.role_fk);
+       
         let resultWithToken = {"authToken": jwt.sign({ user: jwtUser }, "secret"), "user": result};
         res.status(200).send(resultWithToken);
         console.log("User:", jwtUser.name, "has signed in");
@@ -142,10 +143,10 @@ export async function createUser(name: string, lastname: string, email: string, 
     }
 };
 
-
-router.put("/auth/updateUser", async (req, res) => {
+router.put("/auth/updateUser/:id", async (req, res) => {
     try {
-        const result = await updateUser(req.body);
+        
+        const result = await updateUser(req.params.id, req.body);
         res.status(200).send(result);
     } catch (err) {
         res.status(500).send("Something went wrong while updating user");
@@ -153,11 +154,10 @@ router.put("/auth/updateUser", async (req, res) => {
     }
 });
 
-
-export async function updateUser(value: any) {
+export async function updateUser(userId: any, value: any) {
     try {
         // Check if the user exists
-        const user = await User.findOne({ where: { id: value.id } });
+        const user = await User.findOne({ where: { id: userId } });
         if (!user) {
             throw new Error("User not found");
         }
@@ -175,12 +175,12 @@ export async function updateUser(value: any) {
         }
 
         // Update the user
-        await User.update(updatedFields, { where: { id: value.id } });
+        await User.update(updatedFields, { where: { id: userId } });
 
         // Fetch the updated user details
         const updatedUser = await User.findOne({
-            where: { id: value.id },
-            attributes: ['id', 'name', 'lastname', 'password'], // Return only the necessary fields
+            where: { id: userId },
+            attributes: ['id', 'name', 'lastname'], // Return only the necessary fields
         });
 
         console.log("User updated successfully:", updatedUser);
@@ -190,8 +190,6 @@ export async function updateUser(value: any) {
         throw error;
     }
 }
-
-
 
 
 export default router;

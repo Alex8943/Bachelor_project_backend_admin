@@ -33,6 +33,7 @@ export async function getReviews() {
             {
                 model: Genre,
                 attributes: ["name"],
+                through: { attributes: [] },
             },
         ]
     });
