@@ -86,7 +86,38 @@ export async function getReviewsByUserId(value: any){
 
 };
 
+router.get("/reviews/:max", async (req, res) => {
+    try {
+        // Convert `max` to a number
+        const max = parseInt(req.params.max, 10);
 
+        // Validate if `max` is a valid number
+        if (isNaN(max) || max <= 0) {
+            return res.status(400).send("Invalid max parameter. It should be a positive number.");
+        }
+
+        const reviews = await getRangeOfReviews(max);
+        console.log("Specific reviews fetched successfully");
+        res.status(200).send(reviews);
+    } catch (error) {
+        console.error("Error fetching specific reviews:", error);
+        res.status(500).send("Something went wrong while fetching specific reviews");
+    }
+});
+
+
+// Function to fetch reviews
+export async function getRangeOfReviews(max: any) {
+    try {
+        const reviews = await Review.findAll({
+            limit: max, // Sequelize will now receive a number
+        });
+        return reviews;
+    } catch (error) {
+        Logger.error("Error fetching specific reviews: ", error);
+        throw error;
+    }
+}
 
 
 
