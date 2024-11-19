@@ -8,6 +8,7 @@ import genreRouter from "./routes/genreRouter";
 import actionRouter from "./routes/actionRouter";
 import userRouter from "./routes/userRouter";
 import roleRouter from "./routes/roleRouter";
+import {seedData} from "../seed_data";
 import cors from 'cors';
 
 
@@ -17,6 +18,7 @@ app.use(cors());
 
 //testDBConnection();
 //dump;
+//seedData();
 
 app.use(authRouter);
 app.use(reviewRouter);
