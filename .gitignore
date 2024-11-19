@@ -3,6 +3,7 @@
 
 #db files
 backups
+seed_data.ts
 
 
 # Logs
