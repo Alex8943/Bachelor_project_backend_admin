@@ -18,20 +18,26 @@ router.get('/users', async (req, res) => {
         res.status(500).send('Something went wrong while fetching users');
     }});
 
-export async function getUsers() {
-    try{
-        const userResult = await User.findAll();
-        Logger.info("Users fetched successfully");
-        return userResult;
-        
-    }catch(error){
-        Logger.error("Error fetching users: ", error);
-        throw error;
+    export async function getUsers() {
+        try {
+            const userResult = await User.findAll({
+                include: [
+                    {
+                        model: sequelize.models.Role, // Include the Role model
+                        attributes: ['name'], // Only fetch the 'name' attribute from the Role model
+                    },
+                ],
+                attributes: { exclude: ['password'] }, // Exclude sensitive fields like 'password' from the result
+            });
+            Logger.info("Users fetched successfully");
+            return userResult;
+        } catch (error) {
+            Logger.error("Error fetching users: ", error);
+            throw error;
+        }
     }
-};
-
-
-//Get specfic user where role_fk = 3
+    
+//Get specfic user where role_fk = ?
 router.get('/user/:id', async (req, res) => {
     try {
         const users = await getUserById(req.params.id);
@@ -48,6 +54,31 @@ export async function getUserById(value: any){
     try{
         const userResult = await User.findOne({
             where: {id: value}
+        });
+        Logger.info("Specific users fetched successfully");
+        return userResult;
+    }catch(error){
+        Logger.error("Error fetching specific users: ", error);
+        throw error;
+    }
+}
+
+router.get('/users/role/:userRole', async (req, res) => {
+    try {
+        const users = await getUsersByRole(req.params.userRole);
+        console.log('Specific users fetched successfully');
+        res.status(200).send(users);
+    } catch (error) {
+        console.error('Error fetching specific users:', error);
+        res.status(500).send('Something went wrong while fetching specific users');
+    }});
+    
+
+
+export async function getUsersByRole(value: any){
+    try{
+        const userResult = await User.findAll({
+            where: {role_fk: value}
         });
         Logger.info("Specific users fetched successfully");
         return userResult;

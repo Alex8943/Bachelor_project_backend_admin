@@ -35,8 +35,8 @@ process.on('SIGINT', () => {
 });
 
 app.listen(3000, async () => {
-    await connectRabbitMQ();
-    console.log('RabbitMQ connected, starting server...');
+    //await connectRabbitMQ();
+    //console.log('RabbitMQ connected, starting server...');
     console.log('Admin server is running on localhost:3000');
 });
 
