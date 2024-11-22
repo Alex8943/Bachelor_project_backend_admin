@@ -21,6 +21,7 @@ router.get('/users', async (req, res) => {
     export async function getUsers() {
         try {
             const userResult = await User.findAll({
+                where: { isBlocked: false }, 
                 include: [
                     {
                         model: sequelize.models.Role, // Include the Role model
@@ -117,38 +118,78 @@ export async function getReviewsByUserId(value: any){
 
 };
 
-router.get("/reviews/:max", async (req, res) => {
+router.get('/softDeletedUsers', async (req, res) => {
     try {
-        // Convert `max` to a number
-        const max = parseInt(req.params.max, 10);
-
-        // Validate if `max` is a valid number
-        if (isNaN(max) || max <= 0) {
-            return res.status(400).send("Invalid max parameter. It should be a positive number.");
-        }
-
-        const reviews = await getRangeOfReviews(max);
-        console.log("Specific reviews fetched successfully");
-        res.status(200).send(reviews);
+        const users = await showAllDeletedUsers();
+        console.log('Deleted users fetched successfully');
+        res.status(200).send(users);
     } catch (error) {
-        console.error("Error fetching specific reviews:", error);
-        res.status(500).send("Something went wrong while fetching specific reviews");
+        console.error('Error fetching deleted users:', error);
+        res.status(500).send('Something went wrong while fetching deleted users');
+    }});
+
+
+export async function showAllDeletedUsers(){
+    try{
+        const deletedUsers = await User.findAll({
+            where: { isBlocked: true }, // Filter users by `isBlocked` attribute
+            attributes: { exclude: ['password'] }, // Exclude sensitive fields like 'password' from the result
+            include: [
+                {
+                    model: sequelize.models.Role, // Include the Role model
+                    attributes: ['name'], // Only fetch the 'name' attribute from the Role model
+                    
+                },
+            ],
+        });
+        Logger.info("Deleted users fetched successfully");
+        return deletedUsers;
+    }catch(error){
+        Logger.error("Error fetching deleted users: ", error);
+        throw error;
+    }
+}
+
+router.put("/delete/user/:id", async (req, res) => {
+    try{
+        console.log("req.params.id: ", req.params.id);
+        const result = await softDeleteUser(req.params.id); // Pass `userId` and `req.body` separately
+        res.status(200).send(result);
+
+    }catch(error){
+        console.error("error updating user: ", error)
+        res.status(500).send("Something went wrong with updating the user " )
     }
 });
 
 
-// Function to fetch reviews
-export async function getRangeOfReviews(max: any) {
-    try {
-        const reviews = await Review.findAll({
-            where: {
-                isBlocked: false,
-            },
-            limit: max, // Sequelize will now receive a number
-        });
-        return reviews;
-    } catch (error) {
-        Logger.error("Error fetching specific reviews: ", error);
+export async function softDeleteUser(id: any){
+    try{
+        const user = await User.findByPk(id);
+
+        if(!user){
+            console.log("User does not exist");
+            Logger.error("User does not exist");
+            return "User does not exist";
+
+        }else if(user.isBlocked == true){
+            console.log("User is already blocked");
+            Logger.error("User is already blocked");
+            return "User is already blocked";
+        }
+        
+        console.log("User exists");
+
+        // Soft delete the user by setting `isBlocked` to true
+        await User.update(
+            { isBlocked: true },
+            { where: { id: id } }
+        );
+
+        Logger.info("User blocked successfully");
+        return { message: "User blocked successfully" };
+    }catch(error){
+        Logger.error("Error deleting user: ", error);
         throw error;
     }
 }
