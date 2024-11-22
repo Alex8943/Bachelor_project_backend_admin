@@ -32,23 +32,26 @@ router.get("/reviews", async (req, res) => {
 
 export async function getReviews() {
     try {
-    const result = await Reviews.findAll({
-        include: [
-            {
-                model: User,
-                attributes: ["name"],
+        const result = await Reviews.findAll({
+            where: {
+                isBlocked: false, // Ensure only non-blocked reviews are fetched
             },
-            {
-                model: Media,
-                attributes: ["name"],
-            },
-            {
-                model: Genre,
-                attributes: ["name"],
-                through: { attributes: [] },
-            },
-        ]
-    });
+            include: [
+                {
+                    model: User,
+                    attributes: ["name"],
+                },
+                {
+                    model: Media,
+                    attributes: ["name"],
+                },
+                {
+                    model: Genre,
+                    attributes: ["name"],
+                    through: { attributes: [] },
+                },
+            ],
+        });
         logger.info("Reviews fetched successfully");
         return result;
     } catch (err) {
@@ -56,6 +59,7 @@ export async function getReviews() {
         throw err;
     }
 }
+
 
 
 // Create a new review with genres
@@ -238,8 +242,7 @@ export async function getOneReview(value: any) {
 
 
 // Delete review endpoint
-//Soft delete deos not work
-router.delete("/delete/review/:id", async (req, res) => {
+router.put("/delete/review/:id", async (req, res) => {
     try {
         const result = await deleteReview(req.params.id); // Pass only the ID
         console.log("Deleting review with ID: ", req.params.id);
@@ -262,18 +265,19 @@ export async function deleteReview(id: any) { // Treat id as the actual ID
 
             // Soft delete (sets deletedAt instead of hard deleting)
             // TODO: Change to update for soft delete 
-            await Reviews.destroy({
-                where: { id },
-                force: false, // Explicitly specify soft delete
-            });
-            logger.info("Review soft-deleted successfully");
-            return "Review soft-deleted successfully";
+            await Reviews.update(
+                { isBlocked: true },
+                { where: { id: id } }
+            );
+            logger.info("Review deleted successfully");
+            return { message: "Review deleted successfully"};
+
         }
     } catch (error) {
         logger.error("Error during review deletion: ", error);
         throw error;
     }
-}
+};
 
 
 

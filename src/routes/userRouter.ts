@@ -141,6 +141,9 @@ router.get("/reviews/:max", async (req, res) => {
 export async function getRangeOfReviews(max: any) {
     try {
         const reviews = await Review.findAll({
+            where: {
+                isBlocked: false,
+            },
             limit: max, // Sequelize will now receive a number
         });
         return reviews;
