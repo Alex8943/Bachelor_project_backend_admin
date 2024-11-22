@@ -5,6 +5,7 @@ import sequelize from "../other_services/sequelizeConnection";
 import { NumberDataTypeConstructor, QueryTypes } from "sequelize";
 import conn from "../db_services/db_connection";
 import { publishMessage } from '../rabbitmq';
+import { RowDataPacket } from "mysql2";
 
 const router = express.Router();
 
@@ -118,7 +119,7 @@ router.get("/review/:title", async (req, res) => {
     
     try {
         // Access title from req.params instead of req.body
-        const result = await searchReviewByTitle(req.params);
+        const result = await searchReviewByTitle(req.params.title);
         console.log("Result: ", result)
 
         res.status(200).send(result); 
@@ -128,26 +129,40 @@ router.get("/review/:title", async (req, res) => {
     }
 });
 
-// Function to search review by title
-export async function searchReviewByTitle(value: any) {
-
+export async function searchReviewByTitle(value: string) {
     const connection = await conn.getConnection();
     try {
-        const result = await connection.query(
-            'SELECT * FROM stohtpsd_company.review WHERE title=?',
-            [value.title]
-        );
-        logger.info("Review fetched successfully");
+        const query = `
+            SELECT 
+                r.id, r.title, r.description, 
+                u.name AS userName, 
+                m.name AS mediaName, 
+                GROUP_CONCAT(g.name) AS genreNames
+            FROM stohtpsd_company.review r
+            LEFT JOIN stohtpsd_company.user u ON r.user_fk = u.id
+            LEFT JOIN stohtpsd_company.media m ON r.media_fk = m.id
+            LEFT JOIN stohtpsd_company.review_genres rg ON r.id = rg.review_fk
+            LEFT JOIN stohtpsd_company.genre g ON rg.genre_fk = g.id
+            WHERE r.title LIKE ?
+            GROUP BY r.id
+        `;
+        const [rows] = await connection.execute<RowDataPacket[]>(query, [`%${value}%`]);
 
-        
-        return result[0];
+        if (rows.length === 0) {
+            logger.error("No reviews found matching the title");
+            return null;
+        }
+
+        logger.info("Reviews fetched successfully");
+        return rows;
     } catch (error) {
-        console.error("Error searching review by title: ", error);
+        logger.error("Error searching reviews by title: ", error);
         throw error;
     } finally {
         connection.release();
     }
 }
+
 
 
 router.put("/update/review/:id", async (req, res) => {
