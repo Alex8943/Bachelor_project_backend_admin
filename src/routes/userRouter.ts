@@ -3,7 +3,8 @@ import { User, Review } from '../other_services/model/seqModel';
 import Logger from '../other_services/winstonLogger';
 import sequelize from '../other_services/sequelizeConnection';
 import conn from '../db_services/db_connection';
-import { get } from 'http';
+import logger from '../other_services/winstonLogger';
+import { RowDataPacket } from "mysql2/promise";
 
 const router = express.Router();
 
@@ -193,6 +194,50 @@ export async function softDeleteUser(id: any){
         throw error;
     }
 }
+
+router.get('/findUser/:name', async (req, res) => {
+    try {
+        const user = await searchUserByName(req.params.name);
+        if (!user) {
+            console.log('User not found');
+            return res.status(404).send({ message: 'User not found' });
+        }
+        console.log('Specific user fetched successfully');
+        res.status(200).send(user);
+    } catch (error) {
+        console.error('Error fetching specific user:', error);
+        res.status(500).send('Something went wrong while fetching the user');
+    }
+});
+
+export async function searchUserByName(value: string) {
+    const connection = await conn.getConnection();
+    try {
+        const query = `
+            SELECT u.*, r.name AS roleName
+            FROM stohtpsd_company.user u
+            LEFT JOIN stohtpsd_company.role r ON u.role_fk = r.id
+            WHERE u.name LIKE ?
+        `;
+        // Properly type the result to match the structure
+        const [rows] = await connection.execute<RowDataPacket[]>(query, [`%${value}%`]);
+        
+        if (rows.length === 0) {
+            Logger.error("User does not exist");
+            return null;
+        }
+
+        Logger.info("User searched successfully");
+        return rows;
+    } catch (error) {
+        Logger.error("Error searching user: ", error);
+        throw error;
+    } finally {
+        connection.release(); // Release the database connection
+    }
+}
+
+
 
 
 
