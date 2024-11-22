@@ -20,9 +20,9 @@ router.post('/test-publish', async (req, res) => {
 });
 
 // Get all reviews with media, user, and genres
-router.get("/reviews", async (req, res) => {
+router.get("/softDeletedReviews", async (req, res) => {
     try {
-        const reviews = await getReviews();
+        const reviews = await getReviewsThatIsSoftDeleted();
         res.status(200).send(reviews);
     } catch (err) {
         console.error("Error fetching reviews: ", err);
@@ -30,11 +30,11 @@ router.get("/reviews", async (req, res) => {
     }
 });
 
-export async function getReviews() {
+export async function getReviewsThatIsSoftDeleted() {
     try {
         const result = await Reviews.findAll({
             where: {
-                isBlocked: false, // Ensure only non-blocked reviews are fetched
+                isBlocked: true, // Ensure only non-blocked reviews are fetched
             },
             include: [
                 {
@@ -278,6 +278,8 @@ export async function deleteReview(id: any) { // Treat id as the actual ID
         throw error;
     }
 };
+
+
 
 
 
