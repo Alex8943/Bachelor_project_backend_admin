@@ -1,6 +1,8 @@
 import express from 'express';
 import Logger from '../other_services/winstonLogger';
 import conn from '../db_services/db_connection';
+import { User, Role } from '../other_services/model/seqModel';
+
 
 
 const router = express.Router();
@@ -18,17 +20,20 @@ router.get("/roles", async function (req, res) {
     }
 });
 
-export async function getRoles() {
-    try{
-        const connection = await conn.getConnection();
-        const result = await connection.query('select * from stohtpsd_company.role');
-        Logger.info("Roles fetched successfully");
-        return result[0];
 
-    }catch(error){
-        Logger.error("Error fetching roles: ", error);
-        throw error;
+export async function getRoles() {
+    try {
+      // Fetch all roles
+      const roles = await Role.findAll({
+        attributes: ["id", "name"], // Fetch only necessary attributes
+      });
+      return roles;
+    } catch (error) {
+      Logger.error("Error fetching roles: ", error);
+      throw error;
     }
-}
+  }
+  ``
+  
 
 export default router;
