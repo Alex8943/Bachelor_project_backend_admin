@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.2.0",
+    "@sendgrid/mail": "^8.1.4",
     "amqplib": "^0.10.4",
     "bcrypt": "^5.1.1",
     "child_process": "^1.0.2",
@@ -36,6 +37,7 @@
     "joi": "^17.13.3",
     "mysql2": "^3.11.3",
     "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.16",
     "sequelize": "^6.37.3",
     "winston": "^3.14.2"
   }

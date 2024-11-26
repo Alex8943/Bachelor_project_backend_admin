@@ -8,6 +8,8 @@ import logger from "../other_services/winstonLogger";
 import { Role } from "../other_services/model/seqModel";
 import dotenv from "dotenv";
 
+
+
 dotenv.config();
 
 const router = express.Router();
@@ -20,6 +22,9 @@ const validation = (schema: Joi.Schema) => (req: Request, res: Response, next: N
     }
     next();
 }
+
+
+  
 
 
 router.post("/auth/signup", validation(signUpSchema), async (req, res) => {
