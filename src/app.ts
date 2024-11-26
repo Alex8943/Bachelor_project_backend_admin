@@ -19,6 +19,7 @@ app.use(cors());
 
 //testDBConnection();
 //dump;
+
 //seedData();
 
 app.use(authRouter);

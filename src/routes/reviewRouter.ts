@@ -333,6 +333,43 @@ export async function deleteReview(id: any) { // Treat id as the actual ID
 };
 
 
+router.put("/undelete/review/:id", async (req, res) => {
+    try {
+        const result = await unDeleteReview(req.params.id); // Pass only the ID
+        console.log("Undeleting review with ID: ", req.params.id);
+
+        res.status(200).send(result);
+    } catch (error) {
+        console.error("Error undeleting review: ", error);
+        res.status(500).send("Something went wrong with undeleting the review.");
+    }
+});
+
+export async function unDeleteReview(id: any){
+    try {
+        // Check if the review exists
+        const review = await Reviews.findByPk(id);
+        if (!review) {
+            return "Review does not exist";
+        }else if(review.isBlocked === false){
+            return "Review is not deleted";
+        } else {
+            console.log("Review exists");
+
+            //Set the deletedAt to null to undelete the review
+            await Reviews.update(
+                { isBlocked: false },
+                { where: { id: id } }
+            );
+            logger.info("Review undeleted successfully");
+            return { message: "Review undeleted successfully"};
+        }
+    }catch(error){
+        logger.error("Error during review undeletion: ", error);
+        throw error;
+    }
+}
+
 
 
 
