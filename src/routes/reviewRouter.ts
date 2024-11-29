@@ -4,21 +4,10 @@ import logger from "../other_services/winstonLogger";
 import sequelize from "../other_services/sequelizeConnection";
 import { NumberDataTypeConstructor, QueryTypes } from "sequelize";
 import conn from "../db_services/db_connection";
-import { publishMessage } from '../rabbitmq';
 import { RowDataPacket } from "mysql2";
 
 const router = express.Router();
 
-router.post('/test-publish', async (req, res) => {
-    try {
-        const { queue, message } = req.body;
-        await publishMessage(queue, message);
-        res.status(200).send('Message published successfully');
-    } catch (error) {
-        console.error('Failed to publish message:', error);
-        res.status(500).send('Failed to publish message');
-    }
-});
 
 // Get all reviews with media, user, and genres
 router.get("/softDeletedReviews", async (req, res) => {

@@ -9,7 +9,7 @@ import actionRouter from "./routes/actionRouter";
 import userRouter from "./routes/userRouter";
 import roleRouter from "./routes/roleRouter";
 import {seedData} from "../seed_data";
-import { connectRabbitMQ } from './rabbitmq';
+import { initializeConsumer } from './rabbitmqConsumer';
 import cors from 'cors';
 
 
@@ -37,8 +37,8 @@ process.on('SIGINT', () => {
 });
 
 app.listen(3000, async () => {
-    //await connectRabbitMQ();
-    //console.log('RabbitMQ connected, starting server...');
+    await initializeConsumer();
+    console.log("Admin server initialized consumer");
     console.log('Admin server is running on localhost:3000');
 });
 
