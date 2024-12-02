@@ -40,11 +40,11 @@ jobs:
 
     - name: Configure environment variables
       run: |
-        echo "dev_host=127.0.0.1" >> .env
-        echo "dev_user=stohtpsd_company" >> .env
-        echo "dev_password=PasswordAlex99" >> .env
-        echo "dev_database=stohtpsd_company" >> .env
-        echo "dev_port=3306" >> .env
+        echo "dev_host=${{ secrets.DEV_HOST }}" >> .env
+        echo "dev_user=${{ secrets.DEV_USER }}" >> .env
+        echo "dev_password=${{ secrets.DEV_PASSWORD }}" >> .env
+        echo "dev_database=${{ secrets.DEV_DATABASE }}" >> .env
+        echo "dev_port=${{ secrets.PORT }}" >> .env
 
     - name: Wait for MySQL to be ready
       run: |
