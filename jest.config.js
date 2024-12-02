@@ -15,10 +15,15 @@ module.exports = {
       '!src/routes/updateRouter.ts', // Exclude updateRouter.ts
       '!src/db_service/**/*.d.ts', // Exclude the entire `db_service` folder
     ],
-    globals: {
-      'ts-jest': {
-        tsconfig: './tsconfig.json',
+    transform: {
+        '^.+\\.ts$': 'ts-jest', // Use ts-jest to transform TypeScript files
       },
-    },
-  };
+      transformIgnorePatterns: [
+        '/node_modules/', // Ignore transformation of node_modules
+      ],
+      coveragePathIgnorePatterns: [
+        '/node_modules/',
+      ],
+      coverageDirectory: './coverage',
+    };
   
