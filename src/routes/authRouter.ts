@@ -7,7 +7,7 @@ import { User } from "../other_services/model/seqModel";
 import logger from "../other_services/winstonLogger";
 import { Role } from "../other_services/model/seqModel";
 import dotenv from "dotenv";
-
+import verifyUser from "./authenticateUser";
 
 
 dotenv.config();
@@ -24,10 +24,7 @@ const validation = (schema: Joi.Schema) => (req: Request, res: Response, next: N
 }
 
 
-  
-
-
-router.post("/auth/signup", validation(signUpSchema), async (req, res) => {
+router.post("/auth/signup", validation(signUpSchema), verifyUser, async (req, res) => {
     try {
         const result: any = await createUser(req.body.name, req.body.lastname, req.body.email, req.body.password);
       
@@ -55,7 +52,7 @@ router.post("/auth/signup", validation(signUpSchema), async (req, res) => {
     }
 })
 
-router.post("/auth/login", validation(loginSchema), async (req, res) => {
+router.post("/auth/login", validation(loginSchema), verifyUser, async (req, res) => {
     try {
         const result: any = await getUser(req.body.email, req.body.password);
         let jwtUser = {
@@ -148,7 +145,7 @@ export async function createUser(name: string, lastname: string, email: string, 
     }
 };
 
-router.put("/auth/updateUser/:id", async (req, res) => {
+router.put("/auth/updateUser/:id", verifyUser, async (req, res) => {
     try {
         
         const result = await updateUser(req.params.id, req.body);
