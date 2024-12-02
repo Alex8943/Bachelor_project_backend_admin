@@ -1,0 +1,40 @@
+name: CI - Jest Testing
+
+on:
+  push:
+    branches:
+      - main # Run tests on push to the main branch
+  pull_request:
+    branches:
+      - main # Run tests on pull requests to the main branch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18' # Use your preferred Node.js version
+
+    # Step 3: Install dependencies
+    - name: Install dependencies
+      run: npm install
+
+    # Step 4: Run tests
+    - name: Run Jest tests
+      run: npm test
+
+    # Step 5: Upload coverage report (optional)
+    - name: Upload coverage report
+      if: success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: coverage/ # Adjust the path if your coverage report is stored elsewhere
