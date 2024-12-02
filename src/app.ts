@@ -9,6 +9,7 @@ import roleRouter from './routes/roleRouter';
 import { sseRouter } from './routes/updateRouter'; // SSE Router
 import { initializeConsumer } from './rabbitmqConsumer'; // RabbitMQ Consumer
 import logger from './other_services/winstonLogger';
+import {config} from '../config';
 
 const app = express();
 
@@ -30,7 +31,8 @@ app.use(roleRouter);
 // Export app for testing
 export default app;
 
-// Conditional logic for server-specific operations
+console.log("DATABASE NAME FROM .ENV: ", config.dbConfig.mysql.mysql_database);
+
 if (process.env.NODE_ENV !== 'test') {
   process.on('SIGINT', () => {
     logger.end();
