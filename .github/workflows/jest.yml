@@ -9,13 +9,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    build:
-
-    runs-on: ubuntu-latest
-
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:latest
+        env:
+          dev_password: ${{ secrets.DB_PASSWORD }}
+          dev_database: ${{ secrets.DB_DATABASE }}
         ports:
           - 3306:3306
         env:          
