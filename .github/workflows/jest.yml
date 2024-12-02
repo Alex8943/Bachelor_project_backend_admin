@@ -4,27 +4,34 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
-
+ 
 jobs:
   test:
     runs-on: ubuntu-latest
 
+    build:
+
+    runs-on: ubuntu-latest
+
     services:
       mysql:
-        image: mysql:latest
-        env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: test_database
+        image: mysql:5.7
         ports:
           - 3306:3306
+        env:          
+          dev_host: ${{ secrets.DB_HOST }}
+          dev_user: ${{ secrets.DB_USER }}
+          dev_password: ${{ secrets.DB_PASSWORD }}
+          dev_database: ${{ secrets.DB_DATABASE }}
+          dev_port: ${{ secrets.DB_PORT }}
         options: >-
-          --health-cmd="mysqladmin ping -h localhost"
+          --health-cmd="mysqladmin ping --silent"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
+    strategy:
+      matrix:
+        node-version: [14.x]
 
     steps:
     - name: Checkout repository
@@ -37,22 +44,6 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-
-    - name: Configure environment variables
-      run: |
-        echo "dev_host=127.0.0.1" >> .env
-        echo "dev_user=root" >> .env
-        echo "dev_password=password" >> .env
-        echo "dev_database=test_database" >> .env
-        echo "dev_port=3306" >> .env
-        echo "dev_dialect=mysql" >> .env
-
-    - name: Wait for MySQL to be ready
-      run: |
-        for i in {1..10}; do
-          nc -zv 127.0.0.1 3306 && break
-          echo "Waiting for MySQL..." && sleep 5
-        done
 
     - name: Run Jest tests
       run: npm test
