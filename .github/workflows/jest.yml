@@ -40,11 +40,11 @@ jobs:
 
     - name: Configure environment variables
       run: |
-        dev_host: ${{ secrets.DB_HOST }}
-        dev_user: ${{ secrets.DB_USER }}
-        dev_password: ${{ secrets.DB_PASSWORD }}
-        dev_database: ${{ secrets.DB_DATABASE }}
-        dev_port: ${{ secrets.DB_PORT }}
+        echo "dev_host=localhost" >> .env
+        echo "dev_user=stohtpsd_company" >> .env
+        echo "dev_password=PasswordAlex99" >> .env
+        echo "dev_database=stohtpsd_company" >> .env
+        echo "dev_port=3306" >> .env
 
     - name: Wait for MySQL to be ready
       run: |
@@ -53,8 +53,6 @@ jobs:
           echo "Waiting for MySQL..." && sleep 5
         done
 
-    - name: Run migrations
-      run: npm run migrate # Replace this with your migration script if applicable
 
     - name: Run Jest tests
       run: npm test
