@@ -59,9 +59,6 @@ jobs:
         mysql -u root -pPasswordAlex99 -h 127.0.0.1 -e "GRANT ALL PRIVILEGES ON stohtpsd_company.* TO 'stohtpsd_company'@'%';"
         mysql -u root -pPasswordAlex99 -h 127.0.0.1 -e "FLUSH PRIVILEGES;"
     
-    - name: Run database migrations
-      run: npm run migrate # Replace this with your actual migration script command
-
 
     - name: Run Jest tests
       run: npm run test

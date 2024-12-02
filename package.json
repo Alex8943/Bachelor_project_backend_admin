@@ -7,8 +7,7 @@
     "dev": "nodemon --exec ts-node ./src/app.ts",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "build": "tsc",
-    "migrate": "mysql -u $dev_user -p$dev_password -h $dev_host $dev_database < migrations/001-create-tables.sql"
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
