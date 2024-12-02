@@ -53,6 +53,11 @@ jobs:
           echo "Waiting for MySQL..." && sleep 5
         done
 
+    - name: Create MySQL user and grant permissions
+      run: |
+        mysql -u root -pPasswordAlex99 -h 127.0.0.1 -e "CREATE USER 'stohtpsd_company'@'%' IDENTIFIED BY 'PasswordAlex99';"
+        mysql -u root -pPasswordAlex99 -h 127.0.0.1 -e "GRANT ALL PRIVILEGES ON stohtpsd_company.* TO 'stohtpsd_company'@'%';"
+        mysql -u root -pPasswordAlex99 -h 127.0.0.1 -e "FLUSH PRIVILEGES;"
 
     - name: Run Jest tests
       run: npm run test
