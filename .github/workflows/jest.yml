@@ -3,10 +3,10 @@ name: CI - Jest Testing
 on:
   push:
     branches:
-      - main # Run tests on push to the main branch
+      - main
   pull_request:
     branches:
-      - main # Run tests on pull requests to the main branch
+      - main
 
 jobs:
   test:
@@ -21,20 +21,18 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18' # Use your preferred Node.js version
+        node-version: '18'
 
     # Step 3: Install dependencies
     - name: Install dependencies
       run: npm install
 
-    # Step 4: Run tests
-    - name: Run Jest tests
-      run: npm test
+    # Step 4: Add .env variables (if needed)
+    - name: Set up environment variables
+      run: |
+        echo "JWT_SECRET=test_secret" > .env
+        echo "DATABASE_URL=test_database_url" >> .env
 
-    # Step 5: Upload coverage report (optional)
-    - name: Upload coverage report
-      if: success()
-      uses: actions/upload-artifact@v3
-      with:
-        name: coverage-report
-        path: coverage/ # Adjust the path if your coverage report is stored elsewhere
+    # Step 5: Run tests
+    - name: Run Jest tests
+      run: npm run test
