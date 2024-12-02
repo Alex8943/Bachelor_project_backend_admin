@@ -16,8 +16,8 @@ jobs:
       mysql:
         image: mysql:latest
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DEV_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.DEV_DATABASE }}
+          MYSQL_ROOT_PASSWORD: "PasswordAlex99"
+          MYSQL_DATABASE: "stohtpsd_company"
         ports:
           - 3306:3306
         options: >-
