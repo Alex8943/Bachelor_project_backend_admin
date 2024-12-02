@@ -53,9 +53,6 @@ jobs:
           nc -zv 127.0.0.1 3306 && break
           echo "Waiting for MySQL..." && sleep 5
         done
-
-    - name: Run migrations
-      run: npm run migrate # Replace this with your migration script if applicable
-
+        
     - name: Run Jest tests
       run: npm test
