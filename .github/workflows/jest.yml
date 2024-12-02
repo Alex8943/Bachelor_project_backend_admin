@@ -40,7 +40,7 @@ jobs:
 
     - name: Configure environment variables
       run: |
-        echo "dev_host=localhost" >> .env
+        echo "dev_host=127.0.0.1" >> .env
         echo "dev_user=stohtpsd_company" >> .env
         echo "dev_password=PasswordAlex99" >> .env
         echo "dev_database=stohtpsd_company" >> .env
