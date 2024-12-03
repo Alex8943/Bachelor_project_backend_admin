@@ -1,7 +1,6 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
 
-export default function verifyUser(req: Request, res: Response, next: NextFunction) {
+export default function verifyUser(req: any, res: any, next: any) {
   try {
     const authHeader = req.headers.authorization;
 

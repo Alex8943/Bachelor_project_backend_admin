@@ -4,13 +4,12 @@ import Logger from '../other_services/winstonLogger';
 import sequelize from '../other_services/sequelizeConnection';
 import conn from '../db_services/db_connection';
 import logger from '../other_services/winstonLogger';
-import verifyUser from './authenticateUser';
 import { RowDataPacket } from "mysql2/promise";
 
 const router = express.Router();
 
 // Get all users
-router.get('/users', verifyUser, async (req, res) => {
+router.get('/users', async (req, res) => {
     try {
         const users = await getUsers();
         console.log('Users fetched successfully');
@@ -40,8 +39,8 @@ router.get('/users', verifyUser, async (req, res) => {
         }
     }
     
-//Get specfic user where role_fk = ?
-router.get('/user/:id', verifyUser, async (req, res) => {
+
+router.get('/user/:id', async (req, res) => {
     try {
         const users = await getUserById(req.params.id);
         console.log('Specific users fetched successfully');
@@ -66,7 +65,7 @@ export async function getUserById(value: any){
     }
 }
 
-router.get('/users/role/:userRole', verifyUser, async (req, res) => {
+router.get('/users/role/:userRole', async (req, res) => {
     try {
         const users = await getUsersByRole(req.params.userRole);
         console.log('Specific users fetched successfully');
@@ -99,7 +98,7 @@ router.get('/users/role/:userRole', verifyUser, async (req, res) => {
       
 
 //Get all reviews made by a specific user
-router.get("/user/:id/reviews", verifyUser, async (req, res) => {
+router.get("/user/:id/reviews", async (req, res) => {
     try{
         
         const reviews = await getReviewsByUserId(req.params.id);
@@ -127,7 +126,7 @@ export async function getReviewsByUserId(value: any){
 
 };
 
-router.get('/softDeletedUsers', verifyUser, async (req, res) => {
+router.get('/softDeletedUsers', async (req, res) => {
     try {
         const users = await showAllDeletedUsers();
         console.log('Deleted users fetched successfully');
@@ -160,7 +159,7 @@ export async function showAllDeletedUsers(){
 }
 
 
-router.get('/findUser/:name', verifyUser, async (req, res) => {
+router.get('/findUser/:name', async (req, res) => {
     try {
         const user = await searchUserByName(req.params.name);
         if (!user) {
@@ -202,7 +201,7 @@ export async function searchUserByName(value: string) {
     }
 }
 
-router.put("/delete/user/:id", verifyUser, async (req, res) => {
+router.put("/delete/user/:id", async (req, res) => {
     try{
         console.log("req.params.id: ", req.params.id);
         const result = await softDeleteUser(req.params.id); // Pass `userId` and `req.body` separately
@@ -247,7 +246,7 @@ export async function softDeleteUser(id: any){
 }
 
 
-router.put('/update/user/:id', verifyUser, async (req, res) => {
+router.put('/update/user/:id', async (req, res) => {
     try {
         const result = await updateUser(req.params.id, req.body);
         res.status(200).send(result);
@@ -278,7 +277,7 @@ export async function updateUser(id: any, data: any) {
     }
 }
 
-router.put('/undelete/user/:id', verifyUser, async (req, res) => {
+router.put('/undelete/user/:id', async (req, res) => {
     try {
         const result = await undeleteUser(req.params.id);
         res.status(200).send(result);
