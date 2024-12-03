@@ -1,6 +1,7 @@
 import request from 'supertest';
 import app from '../app'; // Import your Express app
-import sequelize from "../other_services/sequelizeConnection";
+import sequelize from '../other_services/sequelizeConnection'; // Import your Sequelize connection
+  
 
     jest.mock('../routes/authenticateUser', () => {
         return jest.fn((req, res, next) => next());
@@ -9,8 +10,10 @@ import sequelize from "../other_services/sequelizeConnection";
     describe('Review Controller', () => {
         beforeEach(async () => {
             await sequelize.sync({ force: true });
+            const [results] = await sequelize.query("SHOW TABLES;");
+            console.log('Tables in database:', results);
         });
-
+        
         it('should fetch excacly amount of reviews', async () => {
             const response = await request(app).get('/reviews/25'); // Adjust the endpoint
             expect(response.status).toBe(200);
