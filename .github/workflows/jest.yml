@@ -60,5 +60,12 @@ jobs:
         mysql -u root -pPasswordAlex99 -h 127.0.0.1 -e "FLUSH PRIVILEGES;"
     
 
-    - name: Run Jest tests
+    - name: Run tests against the database
+      env:
+        dev_host: "127.0.0.1"
+        dev_user: "stohtpsd_company"
+        dev_password: "PasswordAlex99"
+        dev_database: "stohtpsd_company"
+        dev_port: "3306"
       run: npm run test
+
