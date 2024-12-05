@@ -3,7 +3,7 @@ import { broadcastNewUserEvent } from "./routes/updateRouter"; // Import the bro
 import { startUserConsumer } from "./other_services/rabbitMQService/userServiceSubsriber";
 import { startGenreConsumer } from "./other_services/rabbitMQService/genreServiceSubsriber";
 import { startMediaConsumer } from "./other_services/rabbitMQService/mediaServiceSubsriber";
-
+import { startReviewGenresConsumer } from "./other_services/rabbitMQService/reviewGenreSubscriber";
 const RABBITMQ_URL = "amqp://localhost";
 const QUEUE_NAME = "authentication queue";
 
@@ -53,6 +53,18 @@ export const initializeConsumer = async () => {
     console.error("Error initializing RabbitMQ consumer:", error);
   }
 };
+
+
+
+(async () => {
+  try {
+      console.log("Initializing RabbitMQ Consumers...");
+      await startReviewGenresConsumer(); // Start the ReviewGenres consumer
+      console.log("RabbitMQ Consumers are up and running.");
+  } catch (error) {
+      console.error("Error initializing RabbitMQ consumers:", error);
+  }
+})();
 
 
 // Message processing logic
