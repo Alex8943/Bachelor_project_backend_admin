@@ -5,6 +5,7 @@ import { startGenreConsumer } from "./other_services/rabbitMQService/genreServic
 import { startMediaConsumer } from "./other_services/rabbitMQService/mediaServiceSubsriber";
 import { startReviewGenresConsumer } from "./other_services/rabbitMQService/reviewGenreSubscriber";
 import { startDeleteReviewConsumer } from "./other_services/rabbitMQService/deleteReviewSubscriber";
+import { startUndeleteReviewConsumer } from "./other_services/rabbitMQService/undeleteReviewSubscriber";
 
 
 const RABBITMQ_URL = "amqp://localhost";
@@ -75,6 +76,11 @@ export const initializeConsumer = async () => {
   console.log("RabbitMQ Consumers are up and running.");
 })();
 
+(async () => {
+  // Start RabbitMQ consumers
+  await startUndeleteReviewConsumer();
+  console.log("RabbitMQ Consumers are up and running.");
+})();
 
 // Message processing logic
 const processMessage = (message: any) => {
