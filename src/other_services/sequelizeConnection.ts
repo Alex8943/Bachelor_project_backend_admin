@@ -1,6 +1,7 @@
 import {Sequelize} from "sequelize"; 
 import { config } from "../../config"
 
+
 const dbConfig = config.dbConfig;
 const sequelize = new Sequelize(
     dbConfig.mysql.mysql_database!,
@@ -19,7 +20,7 @@ export const sequelizeAuth = async () => {sequelize.authenticate()
     .catch((error) => console.error('Unable to connect to the database:', error));
 };
 
-export const sequelizeSync = async () => {await sequelize.sync()
+export const sequelizeSync = async () => {await sequelize.sync({ alter: true })
     .then(() => console.log('Seq model synced with the database'))
     .catch((error) => console.error('Error syncing models:', error));
 };
