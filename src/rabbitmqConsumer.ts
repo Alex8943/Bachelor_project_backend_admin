@@ -8,6 +8,7 @@ import { startDeleteReviewConsumer } from "./other_services/rabbitMQService/dele
 import { startUndeleteReviewConsumer } from "./other_services/rabbitMQService/undeleteReviewSubscriber";
 import { startFetchDeletedReviewsConsumer } from "./other_services/rabbitMQService/startFetchDeletedReviewsSubscriber";
 import { startSearchReviewConsumer } from "./other_services/rabbitMQService/searchReviewSubscriber";
+import { startUpdateReviewSubscriber } from "./other_services/rabbitMQService/updateReviewSubscriber";
 
 
 const RABBITMQ_URL = "amqp://localhost";
@@ -31,6 +32,7 @@ export const initializeConsumers = async () => {
       startUndeleteReviewConsumer(channel),
       startFetchDeletedReviewsConsumer(channel),
       startSearchReviewConsumer(channel),
+      startUpdateReviewSubscriber(channel),
     ]);
 
     console.log("All RabbitMQ Consumers are up and running.");
