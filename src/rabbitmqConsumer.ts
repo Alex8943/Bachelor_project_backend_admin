@@ -6,30 +6,52 @@ import { startMediaConsumer } from "./other_services/rabbitMQService/mediaServic
 import { startReviewGenresConsumer } from "./other_services/rabbitMQService/reviewGenreSubscriber";
 import { startDeleteReviewConsumer } from "./other_services/rabbitMQService/deleteReviewSubscriber";
 import { startUndeleteReviewConsumer } from "./other_services/rabbitMQService/undeleteReviewSubscriber";
-
+import { startFetchDeletedReviewsConsumer } from "./other_services/rabbitMQService/startFetchDeletedReviewsSubscriber";
 
 const RABBITMQ_URL = "amqp://localhost";
 const QUEUE_NAME = "authentication queue";
 
-
 export const initializeConsumers = async () => {
   try {
-      console.log("Initializing RabbitMQ Consumers...");
+    console.log("Initializing RabbitMQ Consumers...");
 
-      // Initialize all RabbitMQ consumers
-      await Promise.all([
-          startUserConsumer(),
-          startGenreConsumer(),
-          startMediaConsumer(),
-      ]);
+    // Create a single connection and channel for all consumers
+    const connection = await amqp.connect(RABBITMQ_URL);
+    const channel = await connection.createChannel();
 
-      console.log("All RabbitMQ Consumers are up and running.");
+    // Initialize all RabbitMQ consumers with the shared channel
+    await Promise.all([
+      startUserConsumer(channel),
+      startGenreConsumer(channel),
+      startMediaConsumer(channel),
+      startReviewGenresConsumer(channel),
+      startDeleteReviewConsumer(channel),
+      startUndeleteReviewConsumer(channel),
+      startFetchDeletedReviewsConsumer(channel),
+    ]);
+
+    console.log("All RabbitMQ Consumers are up and running.");
+
+    process.on("SIGINT", async () => {
+      try {
+          console.log("Closing RabbitMQ connection gracefully...");
+          await channel.close(); // Close the shared channel
+          await connection.close(); // Close the shared connection
+          console.log("RabbitMQ connection closed.");
+          process.exit(0); // Exit the process after cleanup
+      } catch (error) {
+          console.error("Error closing RabbitMQ connection:", error);
+          process.exit(1);
+      }
+  });
+  
   } catch (error) {
-      console.error("Error initializing RabbitMQ Consumers:", error);
+    console.error("Error initializing RabbitMQ Consumers:", error);
   }
 };
 
-export const initializeConsumer = async () => {
+// Example consumer for the authentication queue
+export const initializeAuthenticationConsumer = async () => {
   try {
     const connection = await amqp.connect(RABBITMQ_URL);
     const channel = await connection.createChannel();
@@ -37,7 +59,7 @@ export const initializeConsumer = async () => {
 
     console.log(`Consumer listening to queue: ${QUEUE_NAME}`);
 
-    // Listen for messages in the queue
+    // Listen for messages in the authentication queue
     channel.consume(
       QUEUE_NAME,
       (message) => {
@@ -47,49 +69,45 @@ export const initializeConsumer = async () => {
 
           // Broadcast the user data to connected SSE clients
           broadcastNewUserEvent(userData);
-          
-          processMessage(userData); // Process the message
+
+          // Process the message
+          processMessage(userData);
+
+          // Acknowledge the message
+          channel.ack(message);
         }
       },
       { noAck: false }
     );
+
+    // Handle graceful shutdown for this connection
+    process.on("SIGINT", async () => {
+      try {
+        await connection.close();
+        console.log("RabbitMQ connection closed for authentication queue.");
+        process.exit(0);
+      } catch (err) {
+        console.error("Error closing RabbitMQ connection for authentication queue:", err);
+        process.exit(1);
+      }
+    });
   } catch (error) {
-    console.error("Error initializing RabbitMQ consumer:", error);
+    console.error("Error initializing RabbitMQ consumer for authentication queue:", error);
   }
 };
 
-
-
-(async () => {
-  try {
-      console.log("Initializing RabbitMQ Consumers...");
-      await startReviewGenresConsumer(); // Start the ReviewGenres consumer
-      console.log("RabbitMQ Consumers are up and running.");
-  } catch (error) {
-      console.error("Error initializing RabbitMQ consumers:", error);
-  }
-})();
-
-(async () => {
-  // Start RabbitMQ consumers
-  await startDeleteReviewConsumer();
-  console.log("RabbitMQ Consumers are up and running.");
-})();
-
-(async () => {
-  // Start RabbitMQ consumers
-  await startUndeleteReviewConsumer();
-  console.log("RabbitMQ Consumers are up and running.");
-})();
-
 // Message processing logic
 const processMessage = (message: any) => {
-  console.log("Processing message:", message);
+  try {
+    console.log("Processing message:", message);
 
-  //Tjeck if the message is login 
+    // Check if the message is login or signup
     if (message.event === "login" || message.event === "signup") {
-        console.log("Message from the publisher: ", message.event);
-    }else{
-        console.log("Message type not recognized");
+      console.log("Message from the publisher: ", message.event);
+    } else {
+      console.log("Message type not recognized");
     }
+  } catch (error) {
+    console.error("Error processing message:", error);
+  }
 };

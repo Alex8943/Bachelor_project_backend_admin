@@ -6,7 +6,7 @@ import actionRouter from './routes/actionRouter';
 import userRouter from './routes/userRouter';
 import roleRouter from './routes/roleRouter';
 import { sseRouter } from './routes/updateRouter'; // SSE Router
-import { initializeConsumer, initializeConsumers} from './rabbitmqConsumer'; // RabbitMQ Consumer
+import {initializeConsumers} from './rabbitmqConsumer'; // RabbitMQ Consumer
 import logger from './other_services/winstonLogger';
 
 import {config} from '../config';

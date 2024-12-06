@@ -1,8 +1,6 @@
-import { createChannel } from "./rabbitMQ";
 import { ReviewGenres } from "../model/seqModel"; // Sequelize model for `review_genres`
 
-export async function startReviewGenresConsumer() {
-    const { channel, connection } = await createChannel();
+export async function startReviewGenresConsumer(channel: any) {
     const queue = "review-genres-service";
 
     try {
@@ -11,7 +9,7 @@ export async function startReviewGenresConsumer() {
 
         channel.consume(
             queue,
-            async (msg) => {
+            async (msg: any) => {
                 if (msg) {
                     const { reviewId } = JSON.parse(msg.content.toString());
                     console.log(`Received request for review_genres for reviewId: ${reviewId}`);
@@ -36,16 +34,18 @@ export async function startReviewGenresConsumer() {
                             Buffer.from(JSON.stringify(genres)),
                             { correlationId: msg.properties.correlationId }
                         );
+                        console.log(`Genres sent back for reviewId ${reviewId}:`, genres);
                     } catch (error) {
                         console.error("Error fetching review genres data:", error);
                     }
 
+                    // Acknowledge the message
                     channel.ack(msg);
                 }
-            }
+            },
+            { noAck: false }
         );
     } catch (error) {
         console.error("Error setting up review-genres consumer:", error);
-        connection.close();
     }
 }

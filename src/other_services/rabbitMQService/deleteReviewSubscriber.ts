@@ -1,9 +1,8 @@
-import { createChannel } from "./rabbitMQ";
 import { Review } from "../model/seqModel"; // Adjust path to your Sequelize model
-import sequelize from "../sequelizeConnection";
 
-export async function startDeleteReviewConsumer() {
-    const { channel, connection } = await createChannel();
+let isClosing = false; // Flag to manage graceful shutdown
+
+export async function startDeleteReviewConsumer(channel: any) {
     const queue = "delete-review-service";
 
     try {
@@ -12,21 +11,33 @@ export async function startDeleteReviewConsumer() {
 
         channel.consume(
             queue,
-            async (msg) => {
+            async (msg: any) => {
                 if (msg) {
                     const { reviewId } = JSON.parse(msg.content.toString());
                     console.log(`Received request to soft delete review with ID: ${reviewId}`);
 
-                    // Log or handle the message (e.g., for analytics or notifications)
-                    console.log(`Soft delete for review ID ${reviewId} acknowledged.`);
+                    try {
+                        // Soft delete the review in the database
+                        await Review.update(
+                            { isBlocked: true },
+                            { where: { id: reviewId } }
+                        );
+                        console.log(`Soft delete for review ID ${reviewId} acknowledged.`);
+                    } catch (error) {
+                        console.error(`Error during soft delete for review ID ${reviewId}:`, error);
+                    }
 
                     // Acknowledge the message
                     channel.ack(msg);
                 }
-            }
+            },
+            { noAck: false }
         );
+
+    
     } catch (error) {
         console.error("Error setting up delete-review consumer:", error);
-        connection.close();
+        // Ensure cleanup in case of errors
+        if (channel) await channel.close();
     }
 }

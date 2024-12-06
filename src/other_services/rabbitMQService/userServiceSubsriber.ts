@@ -1,22 +1,16 @@
-import { createChannel } from "./rabbitMQ"; // Import createChannel function from rabbitMQ.ts
 import { User } from "../model/seqModel"; // Sequelize model for User
 
-
-
-
-export async function startUserConsumer() {
-
-    const { channel, connection } = await createChannel();
+export async function startUserConsumer(channel: any) {
     const queue = "user-service";
 
     try {
-        await channel.assertQueue(queue, { durable: false }); // Ensure queue exists
-
+        // Ensure the queue exists
+        await channel.assertQueue(queue, { durable: false });
         console.log(`Listening for messages in ${queue}...`);
 
         channel.consume(
             queue,
-            async (msg) => {
+            async (msg: any) => {
                 if (msg) {
                     const { userId } = JSON.parse(msg.content.toString());
                     console.log(`Received request for userId: ${userId}`);
@@ -25,10 +19,16 @@ export async function startUserConsumer() {
                         // Fetch user data from Database 1
                         const user = await User.findByPk(userId);
 
-                        // Respond back to review-service
+                        if (user) {
+                            console.log(`User data found:`, user.toJSON());
+                        } else {
+                            console.log(`User with ID ${userId} not found.`);
+                        }
+
+                        // Send response back to the requester
                         channel.sendToQueue(
                             msg.properties.replyTo, // Reply queue
-                            Buffer.from(JSON.stringify(user)), // User data
+                            Buffer.from(JSON.stringify(user || { error: `User with ID ${userId} not found` })), // User data or error
                             { correlationId: msg.properties.correlationId } // Match request-response
                         );
 
@@ -37,18 +37,14 @@ export async function startUserConsumer() {
                         console.error("Error fetching user data:", error);
                     }
 
-                    channel.ack(msg); // Acknowledge the message
-
+                    // Acknowledge the message
+                    channel.ack(msg);
                 }
             },
             { noAck: false } // Ensure message acknowledgment
         );
 
-       
-       
     } catch (error) {
         console.error("Error setting up user consumer:", error);
-        connection.close();
     }
 }
-

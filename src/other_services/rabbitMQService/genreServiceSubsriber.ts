@@ -1,8 +1,6 @@
-import { createChannel } from "./rabbitMQ";
-import { Genre, ReviewGenres, Review } from "../model/seqModel"; // Sequelize model for Genre
+import { Genre, Review } from "../model/seqModel"; // Sequelize model for Genre
 
-export async function startGenreConsumer() {
-    const { channel, connection } = await createChannel();
+export async function startGenreConsumer(channel: any) {
     const queue = "genre-service";
 
     try {
@@ -11,12 +9,13 @@ export async function startGenreConsumer() {
 
         channel.consume(
             queue,
-            async (msg) => {
+            async (msg: any) => {
                 if (msg) {
                     const { reviewId } = JSON.parse(msg.content.toString());
                     console.log(`Received request for reviewId: ${reviewId}`);
 
                     try {
+                        // Fetch genres related to the review ID
                         const genres = await Genre.findAll({
                             include: [
                                 {
@@ -26,27 +25,28 @@ export async function startGenreConsumer() {
                                 },
                             ],
                         });
-                    
+
                         console.log("Fetched genres:", genres);
-                    
-                        // Log the data being sent back to RabbitMQ
+
+                        // Send the fetched genres back to RabbitMQ
                         channel.sendToQueue(
                             msg.properties.replyTo,
                             Buffer.from(JSON.stringify(genres)),
                             { correlationId: msg.properties.correlationId }
                         );
+
                         console.log("Genres sent back:", genres);
                     } catch (error) {
                         console.error("Error fetching genre data:", error);
                     }
+
+                    // Acknowledge the message
                     channel.ack(msg);
                 }
-            }
+            },
+            { noAck: false }
         );
-    }
-    catch (error) {
+    } catch (error) {
         console.error("Error setting up genre consumer:", error);
-        connection.close();
     }
 }
-                    
