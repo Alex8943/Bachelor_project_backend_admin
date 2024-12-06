@@ -7,6 +7,8 @@ import { startReviewGenresConsumer } from "./other_services/rabbitMQService/revi
 import { startDeleteReviewConsumer } from "./other_services/rabbitMQService/deleteReviewSubscriber";
 import { startUndeleteReviewConsumer } from "./other_services/rabbitMQService/undeleteReviewSubscriber";
 import { startFetchDeletedReviewsConsumer } from "./other_services/rabbitMQService/startFetchDeletedReviewsSubscriber";
+import { startSearchReviewConsumer } from "./other_services/rabbitMQService/searchReviewSubscriber";
+
 
 const RABBITMQ_URL = "amqp://localhost";
 const QUEUE_NAME = "authentication queue";
@@ -28,6 +30,7 @@ export const initializeConsumers = async () => {
       startDeleteReviewConsumer(channel),
       startUndeleteReviewConsumer(channel),
       startFetchDeletedReviewsConsumer(channel),
+      startSearchReviewConsumer(channel),
     ]);
 
     console.log("All RabbitMQ Consumers are up and running.");
