@@ -71,4 +71,4 @@ jobs:
         DEV_PASSWORD2: ${{ secrets.DEV_PASSWORD2 }}
         DEV_DATABASE2: ${{ secrets.DEV_DATABASE2 }}
         DEV_PORT2: ${{ secrets.DEV_PORT2 }}
-      run: npm test
+      run: npm run test
