@@ -23,6 +23,11 @@ describe("Test db connections", () => {
         expect(database1Name).toBe("stohtpsd_company")
         expect(database2Name).toBe("stohtpsd_reviews")
 
+        process.env.dev_database = "wrong_db";
+        await testDBConnection().catch((error) => {
+            expect(error).toBeInstanceOf(Error);
+        });
+
         
     });
 
