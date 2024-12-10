@@ -16,8 +16,8 @@ jobs:
       mysql:
         image: mysql:latest
         env:
-          MYSQL_ROOT_PASSWORD: "PasswordAlex99"
-          MYSQL_DATABASE: "stohtpsd_company"
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DEV_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DEV_DATABASE }}
         ports:
           - 3306:3306
         options: >-
@@ -45,13 +45,30 @@ jobs:
           echo "Waiting for MySQL to be ready..." && sleep 5
         done
 
+    - name: Set environment variables
+      env:
+        DEV_HOST: ${{ secrets.DEV_HOST }}
+        DEV_USER: ${{ secrets.DEV_USER }}
+        DEV_PASSWORD: ${{ secrets.DEV_PASSWORD }}
+        DEV_DATABASE: ${{ secrets.DEV_DATABASE }}
+        DEV_PORT: ${{ secrets.DEV_PORT }}
+        DEV_HOST2: ${{ secrets.DEV_HOST2 }}
+        DEV_USER2: ${{ secrets.DEV_USER2 }}
+        DEV_PASSWORD2: ${{ secrets.DEV_PASSWORD2 }}
+        DEV_DATABASE2: ${{ secrets.DEV_DATABASE2 }}
+        DEV_PORT2: ${{ secrets.DEV_PORT2 }}
+      run: printenv | grep DEV_
+
     - name: Run tests against the database
       env:
-        dev_host: "127.0.0.1"
-        dev_user: "stohtpsd_company"
-        dev_password: "PasswordAlex99"
-        dev_database: "stohtpsd_company"
-        dev_port: "3306"
+        DEV_HOST: ${{ secrets.DEV_HOST }}
+        DEV_USER: ${{ secrets.DEV_USER }}
+        DEV_PASSWORD: ${{ secrets.DEV_PASSWORD }}
+        DEV_DATABASE: ${{ secrets.DEV_DATABASE }}
+        DEV_PORT: ${{ secrets.DEV_PORT }}
+        DEV_HOST2: ${{ secrets.DEV_HOST2 }}
+        DEV_USER2: ${{ secrets.DEV_USER2 }}
+        DEV_PASSWORD2: ${{ secrets.DEV_PASSWORD2 }}
+        DEV_DATABASE2: ${{ secrets.DEV_DATABASE2 }}
+        DEV_PORT2: ${{ secrets.DEV_PORT2 }}
       run: npm test
-
-
