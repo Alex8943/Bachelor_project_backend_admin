@@ -5,6 +5,7 @@ module.exports = {
     moduleNameMapper: {
       '^@/(.*)$': '<rootDir>/src/$1',
     },
+
     
     transform: {
         '^.+\\.ts$': 'ts-jest', // Use ts-jest to transform TypeScript files
@@ -15,5 +16,6 @@ module.exports = {
       coveragePathIgnorePatterns: [
         '/node_modules/',
       ],
-    };
+    
+  };
   

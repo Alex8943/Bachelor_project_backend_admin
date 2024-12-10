@@ -52,6 +52,6 @@ jobs:
         dev_password: "PasswordAlex99"
         dev_database: "stohtpsd_company"
         dev_port: "3306"
-      run: npm run test
+      run: npm test
 
 
