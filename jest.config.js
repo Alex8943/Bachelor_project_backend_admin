@@ -15,6 +15,5 @@ module.exports = {
       coveragePathIgnorePatterns: [
         '/node_modules/',
       ],
-      coverageDirectory: './coverage',
     };
   
