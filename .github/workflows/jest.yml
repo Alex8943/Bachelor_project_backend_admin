@@ -45,19 +45,18 @@ jobs:
           echo "Waiting for MySQL to be ready..." && sleep 5
         done
 
-    - name: Set environment variables
-      env:
-        DEV_HOST: ${{ secrets.DEV_HOST }}
-        DEV_USER: ${{ secrets.DEV_USER }}
-        DEV_PASSWORD: ${{ secrets.DEV_PASSWORD }}
-        DEV_DATABASE: ${{ secrets.DEV_DATABASE }}
-        DEV_PORT: ${{ secrets.DEV_PORT }}
-        DEV_HOST2: ${{ secrets.DEV_HOST2 }}
-        DEV_USER2: ${{ secrets.DEV_USER2 }}
-        DEV_PASSWORD2: ${{ secrets.DEV_PASSWORD2 }}
-        DEV_DATABASE2: ${{ secrets.DEV_DATABASE2 }}
-        DEV_PORT2: ${{ secrets.DEV_PORT2 }}
-      run: printenv | grep DEV_
+    - name: Debug Environment Variables
+      run: |
+        echo "DEV_HOST=${{ secrets.DEV_HOST }}"
+        echo "DEV_USER=${{ secrets.DEV_USER }}"
+        echo "DEV_PASSWORD=$({ secrets.DEV_PASSWORD }}"
+        echo "DEV_DATABASE=${{ secrets.DEV_DATABASE }}"
+        echo "DEV_PORT=${{ secrets.DEV_PORT }}"
+        echo "DEV_HOST2=${{ secrets.DEV_HOST2 }}"
+        echo "DEV_USER2=${{ secrets.DEV_USER2 }}"
+        echo "DEV_PASSWORD2=$({ secrets.DEV_PASSWORD }}"
+        echo "DEV_DATABASE2=${{ secrets.DEV_DATABASE2 }}"
+        echo "DEV_PORT2=${{ secrets.DEV_PORT2 }}"
 
     - name: Run tests against the database
       env:
@@ -71,4 +70,4 @@ jobs:
         DEV_PASSWORD2: ${{ secrets.DEV_PASSWORD2 }}
         DEV_DATABASE2: ${{ secrets.DEV_DATABASE2 }}
         DEV_PORT2: ${{ secrets.DEV_PORT2 }}
-      run: npm run test
+      run: npm test
