@@ -49,14 +49,15 @@ jobs:
       run: |
         echo "DEV_HOST=${{ secrets.DEV_HOST }}"
         echo "DEV_USER=${{ secrets.DEV_USER }}"
-        echo "DEV_PASSWORD=$({ secrets.DEV_PASSWORD }}"
+        echo "DEV_PASSWORD=${{ secrets.DEV_PASSWORD }}"
         echo "DEV_DATABASE=${{ secrets.DEV_DATABASE }}"
         echo "DEV_PORT=${{ secrets.DEV_PORT }}"
         echo "DEV_HOST2=${{ secrets.DEV_HOST2 }}"
         echo "DEV_USER2=${{ secrets.DEV_USER2 }}"
-        echo "DEV_PASSWORD2=$({ secrets.DEV_PASSWORD }}"
+        echo "DEV_PASSWORD2=${{ secrets.DEV_PASSWORD }}"
         echo "DEV_DATABASE2=${{ secrets.DEV_DATABASE2 }}"
         echo "DEV_PORT2=${{ secrets.DEV_PORT2 }}"
+
 
     - name: Run tests against the database
       env:
