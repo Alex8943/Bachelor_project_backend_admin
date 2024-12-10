@@ -8,8 +8,15 @@ import roleRouter from './routes/roleRouter';
 import { sseRouter } from './routes/updateRouter'; // SSE Router
 import {initializeConsumers} from './rabbitmqConsumer'; // RabbitMQ Consumer
 import logger from './other_services/winstonLogger';
+import { test_DB2_connection } from './db_services/db2_connection';
+import { testDBConnection } from './db_services/db_connection';
+import { seedData } from '../seed_data';
 
 import {config} from '../config';
+
+//test_DB2_connection();
+//testDBConnection();
+//seedData();
 
 const app = express();
 app.use(cors());
@@ -22,11 +29,6 @@ app.use(userRouter);
 app.use(roleRouter);
 
 
-
-// Export app for testing
-export default app;
-
-
   process.on('SIGINT', () => {
     logger.end();
     console.log('See ya later silly');
@@ -34,7 +36,6 @@ export default app;
   });
 
   app.listen(3000, async () => {
-    //await initializeConsumer();
     await initializeConsumers();
     console.log('Admin server is running on localhost:3000');
   });
