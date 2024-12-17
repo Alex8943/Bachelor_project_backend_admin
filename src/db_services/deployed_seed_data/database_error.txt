@@ -1,0 +1,4 @@
+Fejl jeg har oplevet indtil videre: 
+At cache skal resetes: 
+
+- Click on the "Azure Accounts: Clear Azure Account Token Cache" option.

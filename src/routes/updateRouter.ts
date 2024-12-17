@@ -1,16 +1,17 @@
 import express from "express";
+import verifyUser from "./authenticateUser";
 
 const router = express.Router();
 const clients: any[] = []; // Store active SSE connections
 
-// Function to send events to all connected clients
+
 const sendEventToClients = (event: any) => {
   clients.forEach((client) => {
     client.res.write(`data: ${JSON.stringify(event)}\n\n`);
   });
 };
 
-router.get("/events", (req, res) => {
+router.get("/events", verifyUser, (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
@@ -36,11 +37,11 @@ router.get("/events", (req, res) => {
   });
 });
 
-// Function to broadcast RabbitMQ events
+// broadcast RabbitMQ events
 const broadcastNewUserEvent = (user: any) => {
   sendEventToClients({
     event: "signup",
-    user, // Real user data
+    user, // user data
     timestamp: new Date().toISOString(),
   });
 };

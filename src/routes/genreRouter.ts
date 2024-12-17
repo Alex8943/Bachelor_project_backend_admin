@@ -2,11 +2,12 @@ import express from 'express';
 import logger from '../other_services/winstonLogger';
 import {Genre} from '../other_services/model/seqModel';
 import sequelize from '../other_services/sequelizeConnection';
+import verifyUser from './authenticateUser';
 
 const router = express.Router();
 
-// Get top 3 genres
-router.get('/genres/top', async (req, res) => {
+
+router.get('/genres/top', verifyUser, async (req, res) => {
     try {
         const genres = await getTopGenres();
         res.status(200).send(genres);

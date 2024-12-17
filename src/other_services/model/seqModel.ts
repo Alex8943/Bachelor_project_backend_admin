@@ -223,7 +223,7 @@ ReviewGenres.init(
         sequelize,
         modelName: 'ReviewGenres',
         tableName: 'review_genres',
-        timestamps: false, // No timestamps needed for a junction table
+        timestamps: false, // No timestamps needed for a Runction table
     }
 );
 

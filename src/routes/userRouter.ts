@@ -5,11 +5,13 @@ import sequelize from '../other_services/sequelizeConnection';
 import conn from '../db_services/db_connection';
 import logger from '../other_services/winstonLogger';
 import { RowDataPacket } from "mysql2/promise";
+import verifyUser from './authenticateUser';
+import { verify } from 'crypto';
 
 const router = express.Router();
 
-// Get all users
-router.get('/users', async (req, res) => {
+
+router.get('/users', verifyUser, async (req, res) => {
     try {
         const users = await getUsers();
         console.log('Users fetched successfully');
@@ -25,11 +27,12 @@ router.get('/users', async (req, res) => {
                 where: { isBlocked: false }, 
                 include: [
                     {
-                        model: sequelize.models.Role, // Include the Role model
-                        attributes: ['name'], // Only fetch the 'name' attribute from the Role model
+                        model: sequelize.models.Role, 
+                        attributes: ['name'], 
                     },
                 ],
-                attributes: { exclude: ['password'] }, // Exclude sensitive fields like 'password' from the result
+                attributes: { exclude: ['password'] },
+                limit: 200,
             });
             Logger.info("Users fetched successfully");
             return userResult;
@@ -40,7 +43,7 @@ router.get('/users', async (req, res) => {
     }
     
 
-router.get('/user/:id', async (req, res) => {
+router.get('/user/:id', verifyUser ,async (req, res) => {
     try {
         const users = await getUserById(req.params.id);
         console.log('Specific users fetched successfully');
@@ -52,20 +55,34 @@ router.get('/user/:id', async (req, res) => {
 
 
 
-export async function getUserById(value: any){
-    try{
-        const userResult = await User.findOne({
-            where: {id: value}
-        });
-        Logger.info("Specific users fetched successfully");
-        return userResult;
-    }catch(error){
-        Logger.error("Error fetching specific users: ", error);
-        throw error;
-    }
-}
+    export async function getUserById(value: any) {
+        try {
+          const userResult = await User.findOne({
+            where: { id: value }, // Match the specific user by ID
+            include: [
+              {
+                model: Role, // Ensure Role is imported from your models
+                attributes: ["name"], // Include only the 'name' attribute of the Role model
+              },
+            ],
+            attributes: { exclude: ["password"] }, // Exclude sensitive fields like password
+          });
+      
+          if (!userResult) {
+            Logger.warn(`User with ID ${value} not found.`);
+            return null; // Return null if the user does not exist
+          }
+      
+          Logger.info("Specific user fetched successfully");
+          return userResult;
+        } catch (error) {
+          Logger.error("Error fetching specific user: ", error);
+          throw error;
+        }
+      }
+      
 
-router.get('/users/role/:userRole', async (req, res) => {
+router.get('/users/role/:userRole', verifyUser, async (req, res) => {
     try {
         const users = await getUsersByRole(req.params.userRole);
         console.log('Specific users fetched successfully');
@@ -84,7 +101,7 @@ router.get('/users/role/:userRole', async (req, res) => {
             include: [
               {
                 model: Role,
-                as: "Role", // Ensure the alias matches the Sequelize association
+                as: "Role", // Ensure the alias matches the Sequelize 
                 attributes: ["id", "name"], // Include only necessary Role attributes
               },
             ],
@@ -98,7 +115,7 @@ router.get('/users/role/:userRole', async (req, res) => {
       
 
 //Get all reviews made by a specific user
-router.get("/user/:id/reviews", async (req, res) => {
+router.get("/user/:id/reviews", verifyUser, async (req, res) => {
     try{
         
         const reviews = await getReviewsByUserId(req.params.id);
@@ -126,7 +143,7 @@ export async function getReviewsByUserId(value: any){
 
 };
 
-router.get('/softDeletedUsers', async (req, res) => {
+router.get('/softDeletedUsers', verifyUser, async (req, res) => {
     try {
         const users = await showAllDeletedUsers();
         console.log('Deleted users fetched successfully');
@@ -140,12 +157,12 @@ router.get('/softDeletedUsers', async (req, res) => {
 export async function showAllDeletedUsers(){
     try{
         const deletedUsers = await User.findAll({
-            where: { isBlocked: true }, // Filter users by `isBlocked` attribute
-            attributes: { exclude: ['password'] }, // Exclude sensitive fields like 'password' from the result
+            where: { isBlocked: true }, 
+            attributes: { exclude: ['password'] },
             include: [
                 {
-                    model: sequelize.models.Role, // Include the Role model
-                    attributes: ['name'], // Only fetch the 'name' attribute from the Role model
+                    model: sequelize.models.Role, 
+                    attributes: ['name'],
                     
                 },
             ],
@@ -159,7 +176,7 @@ export async function showAllDeletedUsers(){
 }
 
 
-router.get('/findUser/:name', async (req, res) => {
+router.get('/findUser/:name', verifyUser, async (req, res) => {
     try {
         const user = await searchUserByName(req.params.name);
         if (!user) {
@@ -183,6 +200,7 @@ export async function searchUserByName(value: string) {
             LEFT JOIN stohtpsd_company.role r ON u.role_fk = r.id
             WHERE u.name LIKE ?
         `;
+
         // Properly type the result to match the structure
         const [rows] = await connection.execute<RowDataPacket[]>(query, [`%${value}%`]);
         
@@ -196,12 +214,10 @@ export async function searchUserByName(value: string) {
     } catch (error) {
         Logger.error("Error searching user: ", error);
         throw error;
-    } finally {
-        connection.release(); // Release the database connection
     }
 }
 
-router.put("/delete/user/:id", async (req, res) => {
+router.put("/delete/user/:id", verifyUser, async (req, res) => {
     try{
         console.log("req.params.id: ", req.params.id);
         const result = await softDeleteUser(req.params.id); // Pass `userId` and `req.body` separately
@@ -231,7 +247,7 @@ export async function softDeleteUser(id: any){
         
         console.log("User exists");
 
-        // Soft delete the user by setting `isBlocked` to true
+
         await User.update(
             { isBlocked: true },
             { where: { id: id } }
@@ -246,7 +262,7 @@ export async function softDeleteUser(id: any){
 }
 
 
-router.put('/update/user/:id', async (req, res) => {
+router.put('/update/user/:id', verifyUser, async (req, res) => {
     try {
         const result = await updateUser(req.params.id, req.body);
         res.status(200).send(result);
@@ -277,7 +293,7 @@ export async function updateUser(id: any, data: any) {
     }
 }
 
-router.put('/undelete/user/:id', async (req, res) => {
+router.put('/undelete/user/:id', verifyUser, async (req, res) => {
     try {
         const result = await undeleteUser(req.params.id);
         res.status(200).send(result);
@@ -304,14 +320,17 @@ export async function undeleteUser(id: any){
         
         console.log("User exists");
 
-        // Soft delete the user by setting `isBlocked` to true
+
         await User.update(
             { isBlocked: false },
             { where: { id: id } }
         );
 
         Logger.info("User unblocked successfully");
-        return { message: "User unblocked successfully" };
+        return { 
+            message: 
+            "User unblocked successfully" 
+        };
     }catch(error){
         Logger.error("Error unblocking user: ", error);
         throw error;

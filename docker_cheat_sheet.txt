@@ -1,0 +1,12 @@
+1: #commmand to virutal mashine: 
+ssh azureuser@20.54.85.24
+
+2: #command to all containters:
+sudo docker ps (for all running containers)
+sudo docker ps -a(for all running and stopped containers)
+sudo docker restart [name or id of the container]
+sudo docker stop [name or id of the container]
+
+
+sudo restart rabbitmq
+sudo ./start_rabbit_mq.sh

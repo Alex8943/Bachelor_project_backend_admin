@@ -10,17 +10,22 @@ import { startFetchDeletedReviewsConsumer } from "./other_services/rabbitMQServi
 import { startSearchReviewConsumer } from "./other_services/rabbitMQService/searchReviewSubscriber";
 import { startUpdateReviewSubscriber } from "./other_services/rabbitMQService/updateReviewSubscriber";
 import { startFetchOneReviewById } from "./other_services/rabbitMQService/fetchReviewByIdSubscriber";
+import dotenv from "dotenv";
 
+dotenv.config();
 
-const RABBITMQ_URL = "amqp://localhost";
+const LOCAL_RABBITMQ_URL = process.env.rabbitmq_url || "amqp://localhost"; 
+if(!LOCAL_RABBITMQ_URL) {
+  throw new Error("RabbitMQ URL is not provided");
+}
 const QUEUE_NAME = "authentication queue";
 
 export const initializeConsumers = async () => {
+
   try {
     console.log("Initializing RabbitMQ Consumers...");
-
     // Create a single connection and channel for all consumers
-    const connection = await amqp.connect(RABBITMQ_URL);
+    const connection = await amqp.connect(LOCAL_RABBITMQ_URL);
     const channel = await connection.createChannel();
 
     // Initialize all RabbitMQ consumers with the shared channel
@@ -60,7 +65,7 @@ export const initializeConsumers = async () => {
 // Example consumer for the authentication queue
 export const initializeAuthenticationConsumer = async () => {
   try {
-    const connection = await amqp.connect(RABBITMQ_URL);
+    const connection = await amqp.connect(LOCAL_RABBITMQ_URL);
     const channel = await connection.createChannel();
     await channel.assertQueue(QUEUE_NAME, { durable: true });
 

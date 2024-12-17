@@ -1,11 +1,12 @@
 import express from 'express';
 import { ReviewActions, Review } from "../other_services/model/seqModel";
 import Logger from "../other_services/winstonLogger";
+import verifyUser from './authenticateUser';
 
 const router = express.Router();
 
 
-router.get('/actions/:userId', async (req, res) => {
+router.get('/actions/:userId', verifyUser, async (req, res) => {
     try {
         const likedReviews = await getLikedReviewsByUser({ userId: req.params.userId });
         res.status(200).json(likedReviews);
@@ -41,7 +42,7 @@ export async function getLikedReviewsByUser(values: any) {
 
 
 // Route for liking a review by a user
-router.post('/like', async (req, res) => {
+router.post('/like', verifyUser, async (req, res) => {
     try {
         const result = await likeReview(req.body);
         res.status(200).json(result);

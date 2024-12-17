@@ -2,13 +2,13 @@ import express from 'express';
 import Logger from '../other_services/winstonLogger';
 import conn from '../db_services/db_connection';
 import { User, Role } from '../other_services/model/seqModel';
-
+import verifyUser from './authenticateUser';
 
 const router = express.Router();
 
 
 //Get role id's
-router.get("/roles", async function (req, res) {
+router.get("/roles", verifyUser, async function (req, res) {
     try {
         const roles = await getRoles();
         console.log('Roles fetched successfully');
@@ -22,9 +22,8 @@ router.get("/roles", async function (req, res) {
 
 export async function getRoles() {
     try {
-      // Fetch all roles
       const roles = await Role.findAll({
-        attributes: ["id", "name"], // Fetch only necessary attributes
+        attributes: ["id", "name"],
       });
       return roles;
     } catch (error) {
@@ -33,6 +32,5 @@ export async function getRoles() {
     }
   }
   ``
-  
 
 export default router;
