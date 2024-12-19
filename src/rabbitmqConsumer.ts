@@ -10,6 +10,7 @@ import { startFetchDeletedReviewsConsumer } from "./other_services/rabbitMQServi
 import { startSearchReviewConsumer } from "./other_services/rabbitMQService/searchReviewSubscriber";
 import { startUpdateReviewSubscriber } from "./other_services/rabbitMQService/updateReviewSubscriber";
 import { startFetchOneReviewById } from "./other_services/rabbitMQService/fetchReviewByIdSubscriber";
+import { startPlatformServiceSubscriber } from "./other_services/rabbitMQService/platformServiceSubscriber";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -40,6 +41,7 @@ export const initializeConsumers = async () => {
       startSearchReviewConsumer(channel),
       startUpdateReviewSubscriber(channel),
       startFetchOneReviewById(channel),
+      startPlatformServiceSubscriber(channel),
     ]);
 
     console.log("All RabbitMQ Consumers are up and running.");
