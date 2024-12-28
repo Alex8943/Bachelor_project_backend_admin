@@ -10,7 +10,7 @@ import {initializeConsumers} from './rabbitmqConsumer'; // RabbitMQ Consumer
 import logger from './other_services/winstonLogger';
 import { test_DB2_connection } from './db_services/db2_connection';
 import { testDBConnection } from './db_services/db_connection';
-import { seedData } from '../seed_data';
+//import { seedData } from '../seed_data';
 import createBackup from './db_services/backup';
 
 import {config} from '../config';
