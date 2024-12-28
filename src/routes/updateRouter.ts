@@ -11,15 +11,22 @@ const sendEventToClients = (event: any) => {
   });
 };
 
-router.get("/events", verifyUser, (req, res) => {
-  res.setHeader("Content-Type", "text/event-stream");
+router.get("/sse", (req, res) => {
+  /*res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
   res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  */
+
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
   // Keep the connection open
-  res.flushHeaders();
+  //res.flushHeaders();
 
   // Add the client to the list
   const clientId = Date.now();
@@ -41,9 +48,13 @@ router.get("/events", verifyUser, (req, res) => {
 const broadcastNewUserEvent = (user: any) => {
   sendEventToClients({
     event: "signup",
-    user, // user data
+    user: {
+      name: user.name,
+      email: user.email,
+    },
     timestamp: new Date().toISOString(),
   });
 };
+
 
 export { router as sseRouter, broadcastNewUserEvent };

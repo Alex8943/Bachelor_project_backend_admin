@@ -7,7 +7,6 @@ import { User } from "../other_services/model/seqModel";
 import logger from "../other_services/winstonLogger";
 import { Role } from "../other_services/model/seqModel";
 import dotenv from "dotenv";
-import verifyUser from "./authenticateUser";
 
 dotenv.config();
 

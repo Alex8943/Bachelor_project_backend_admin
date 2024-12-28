@@ -34,8 +34,8 @@ const createBackup = () => {
         }
     });
 };
-// Schedule a cron job to run the backup at a specific interval
-// change the interval to be every minute
+
+// Running every minute
 cron.schedule('* * * * *', () => {
     console.log('Starting scheduled backup...');
     createBackup();

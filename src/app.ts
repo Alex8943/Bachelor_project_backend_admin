@@ -5,7 +5,7 @@ import genreRouter from './routes/genreRouter';
 import actionRouter from './routes/reviewActionRouter';
 import userRouter from './routes/userRouter';
 import roleRouter from './routes/roleRouter';
-import { sseRouter } from './routes/updateRouter'; // SSE Router
+import { sseRouter, broadcastNewUserEvent } from './routes/updateRouter'; // SSE Router
 import {initializeConsumers} from './rabbitmqConsumer'; // RabbitMQ Consumer
 import logger from './other_services/winstonLogger';
 import { test_DB2_connection } from './db_services/db2_connection';
@@ -23,7 +23,7 @@ import {config} from '../config';
 const app = express();
 app.use(cors());
 
-app.use('/sse', sseRouter);
+app.use(sseRouter);
 app.use(authRouter);
 app.use(genreRouter);
 app.use(actionRouter);

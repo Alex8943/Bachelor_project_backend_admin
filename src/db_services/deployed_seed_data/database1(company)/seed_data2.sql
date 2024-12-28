@@ -1,31 +1,23 @@
--- Enable identity insert for manual insertion of IDs where necessary
-SET IDENTITY_INSERT role ON;
-
--- Insert roles
-INSERT INTO role (id, name)
+-- Insert roles directly (AUTO_INCREMENT handles IDs)
+INSERT INTO role (name)
 VALUES
-(1, 'super admin'),
-(2, 'admin'),
-(3, 'customer');
-
-SET IDENTITY_INSERT role OFF;
+('super admin'),
+('admin'),
+('customer');
 
 -- Insert users
-DECLARE @Users TABLE (id INT, firstName NVARCHAR(50), lastName NVARCHAR(50), email NVARCHAR(100), role_fk INT);
-INSERT INTO [user] (name, lastname, email, password, role_fk, createdAt, updatedAt)
-OUTPUT INSERTED.id, INSERTED.name, INSERTED.lastname, INSERTED.email, INSERTED.role_fk INTO @Users
+INSERT INTO user (name, lastname, email, password, role_fk, createdAt, updatedAt)
 VALUES
-('John', 'Doe', 'john.doe@superadmin.com', HASHBYTES('SHA2_256', 'password'), 1, GETDATE(), GETDATE()),
-('Jane', 'Smith', 'jane.smith@admin.com', HASHBYTES('SHA2_256', 'password'), 2, GETDATE(), GETDATE()),
-('Bob', 'Brown', 'bob.brown@customer.com', HASHBYTES('SHA2_256', 'password'), 3, GETDATE(), GETDATE());
+('John', 'Doe', 'john.doe@superadmin.com', SHA2('password', 256), 1, NOW(), NOW()),
+('Jane', 'Smith', 'jane.smith@admin.com', SHA2('password', 256), 2, NOW(), NOW()),
+('Bob', 'Brown', 'bob.brown@customer.com', SHA2('password', 256), 3, NOW(), NOW());
 
--- Insert media
 INSERT INTO media (name)
 VALUES
-('Book'),
-('Movie'),
 ('Podcast'),
-('Video Game');
+('Webinar'),
+('Film'),
+('Music');
 
 -- Insert genres
 INSERT INTO genre (name)
@@ -38,40 +30,51 @@ VALUES
 -- Insert platforms
 INSERT INTO platform (link)
 VALUES
-('https://example.com/platform1'),
-('https://example.com/platform2'),
-('https://example.com/platform3'),
-('https://example.com/platform4');
+('YouTube podcasts'),
+('Spotify podcasts'),
+('Apple podcasts'),
+('Danmarks radio podcasts'),
+('Andre podcasts');
 
--- Insert reviews
-DECLARE @Reviews TABLE (id INT, user_fk INT);
+-- Create temporary table for review insertion (alternative to @variable table)
+CREATE TEMPORARY TABLE temp_users AS
+SELECT id FROM user;
+
+-- Insert reviews with random values
 INSERT INTO review (media_fk, title, description, platform_fk, user_fk, createdAt, updatedAt, isBlocked)
-OUTPUT INSERTED.id, INSERTED.user_fk INTO @Reviews
 SELECT
-    (ROW_NUMBER() OVER (ORDER BY NEWID()) % 4) + 1 AS media_fk, -- Random media_fk
-    CONCAT('Review Title ', ROW_NUMBER() OVER (ORDER BY NEWID())) AS title,
-    CONCAT('This is a sample review for media ', (ROW_NUMBER() OVER (ORDER BY NEWID()) % 4) + 1) AS description,
-    (ROW_NUMBER() OVER (ORDER BY NEWID()) % 4) + 1 AS platform_fk, -- Random platform_fk
+    (FLOOR(1 + RAND() * 4)) AS media_fk,  -- Random media_fk
+    CONCAT('Review Title ', id) AS title,
+    CONCAT('This is a sample review for media ', FLOOR(1 + RAND() * 4)) AS description,
+    (FLOOR(1 + RAND() * 4)) AS platform_fk,  -- Random platform_fk
     id AS user_fk,
-    GETDATE() AS createdAt,
-    GETDATE() AS updatedAt,
+    NOW() AS createdAt,
+    NOW() AS updatedAt,
     0 AS isBlocked
-FROM @Users;
+FROM temp_users;
 
--- Insert review genres
+-- Create temporary table for reviews
+CREATE TEMPORARY TABLE temp_reviews AS
+SELECT id FROM review;
+
+-- Insert review genres with random assignment
 INSERT INTO review_genres (review_fk, genre_fk)
-SELECT DISTINCT
+SELECT
     R.id AS review_fk,
-    (ROW_NUMBER() OVER (ORDER BY NEWID()) % 4) + 1 AS genre_fk -- Random genre_fk
-FROM @Reviews R;
+    (FLOOR(1 + RAND() * 4)) AS genre_fk  -- Random genre_fk
+FROM temp_reviews R;
 
 -- Insert review actions
 INSERT INTO review_actions (user_fk, review_fk, review_gesture, createdAt, updatedAt)
-SELECT DISTINCT
+SELECT
     U.id AS user_fk,
     R.id AS review_fk,
-    CASE WHEN (ROW_NUMBER() OVER (ORDER BY NEWID()) % 2) = 0 THEN 1 ELSE 0 END AS review_gesture, -- Random like/dislike
-    GETDATE() AS createdAt,
-    GETDATE() AS updatedAt
-FROM @Users U
-CROSS JOIN @Reviews R;
+    IF(RAND() < 0.5, 1, 0) AS review_gesture,  -- Random like/dislike
+    NOW() AS createdAt,
+    NOW() AS updatedAt
+FROM temp_users U
+CROSS JOIN temp_reviews R;
+
+-- Drop temporary tables
+DROP TEMPORARY TABLE temp_users;
+DROP TEMPORARY TABLE temp_reviews;
