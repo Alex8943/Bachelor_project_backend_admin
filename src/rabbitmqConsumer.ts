@@ -13,23 +13,27 @@ import { startFetchOneReviewById } from "./other_services/rabbitMQService/fetchR
 import { startPlatformServiceSubscriber } from "./other_services/rabbitMQService/platformServiceSubscriber";
 import dotenv from "dotenv";
 
+
 dotenv.config();
 
-const LOCAL_RABBITMQ_URL = process.env.rabbitmq_url || "amqp://localhost"; 
-if(!LOCAL_RABBITMQ_URL) {
+const LOCAL_RABBITMQ_URL = process.env.rabbitmq_url || "amqp://localhost";
+if (!LOCAL_RABBITMQ_URL) {
   throw new Error("RabbitMQ URL is not provided");
 }
-const QUEUE_NAME = "authentication queue";
+const AUTH_QUEUE_NAME = "authentication queue";
 
 export const initializeConsumers = async () => {
-
   try {
     console.log("Initializing RabbitMQ Consumers...");
+
     // Create a single connection and channel for all consumers
     const connection = await amqp.connect(LOCAL_RABBITMQ_URL);
     const channel = await connection.createChannel();
 
-    // Initialize all RabbitMQ consumers with the shared channel
+    // Assert the authentication queue
+    await channel.assertQueue(AUTH_QUEUE_NAME, { durable: true });
+
+    // Start all service consumers (with shared channel)
     await Promise.all([
       startUserConsumer(channel),
       startGenreConsumer(channel),
@@ -42,71 +46,81 @@ export const initializeConsumers = async () => {
       startUpdateReviewSubscriber(channel),
       startFetchOneReviewById(channel),
       startPlatformServiceSubscriber(channel),
+      startAuthenticationConsumer(channel),  // Add auth consumer
     ]);
 
     console.log("All RabbitMQ Consumers are up and running.");
 
+    // Graceful shutdown (single handler for all)
     process.on("SIGINT", async () => {
       try {
-          console.log("Closing RabbitMQ connection gracefully...");
-          await channel.close(); // Close the shared channel
-          await connection.close(); // Close the shared connection
-          console.log("RabbitMQ connection closed.");
-          process.exit(0); // Exit the process after cleanup
+        console.log("Closing RabbitMQ connection gracefully...");
+        await channel.close();
+        await connection.close();
+        console.log("RabbitMQ connection closed.");
+        process.exit(0);
       } catch (error) {
-          console.error("Error closing RabbitMQ connection:", error);
-          process.exit(1);
+        console.error("Error closing RabbitMQ connection:", error);
+        process.exit(1);
       }
-  });
-  
+    });
   } catch (error) {
     console.error("Error initializing RabbitMQ Consumers:", error);
   }
 };
 
-// Example consumer for the authentication queue
-export const initializeAuthenticationConsumer = async () => {
+// Authentication Consumer (Revised)
+const startAuthenticationConsumer = async (channel: amqp.Channel) => {
   try {
-    const connection = await amqp.connect(LOCAL_RABBITMQ_URL);
-    const channel = await connection.createChannel();
-    await channel.assertQueue(QUEUE_NAME, { durable: true });
+    console.log(`Listening for messages on queue: ${AUTH_QUEUE_NAME}`);
 
-    console.log(`Consumer listening to queue: ${QUEUE_NAME}`);
-
-    // Listen for messages in the authentication queue
-    channel.consume(
-      QUEUE_NAME,
+    /*channel.consume(
+      AUTH_QUEUE_NAME,
       (message) => {
         if (message) {
           const userData = JSON.parse(message.content.toString());
           console.log("New user data received from RabbitMQ:", userData);
 
-          // Broadcast the user data to connected SSE clients
+          // Broadcast the user data to SSE clients
           broadcastNewUserEvent(userData);
 
           // Process the message
           processMessage(userData);
 
-          // Acknowledge the message
+          // Acknowledge the message (remove from queue)
+          channel.ack(message);
+        }
+      },
+      { noAck: false }
+    );*/
+      
+
+
+    channel.consume(
+      AUTH_QUEUE_NAME,
+      (message) => {
+        if (message) {
+          const receivedData = JSON.parse(message.content.toString());
+          console.log("New user data received from RabbitMQ:", receivedData);
+    
+          const userData = receivedData.authToken?.user || receivedData;
+          console.log("Processed user data:", userData);
+    
+          // Process message (Check for login/signup)
+          processMessage(receivedData);  // <-- Call processMessage here
+    
+          // Broadcast to SSE clients
+          broadcastNewUserEvent(userData);
           channel.ack(message);
         }
       },
       { noAck: false }
     );
-
-    // Handle graceful shutdown for this connection
-    process.on("SIGINT", async () => {
-      try {
-        await connection.close();
-        console.log("RabbitMQ connection closed for authentication queue.");
-        process.exit(0);
-      } catch (err) {
-        console.error("Error closing RabbitMQ connection for authentication queue:", err);
-        process.exit(1);
-      }
-    });
+    
+    
+      
   } catch (error) {
-    console.error("Error initializing RabbitMQ consumer for authentication queue:", error);
+    console.error("Error initializing authentication consumer:", error);
   }
 };
 
@@ -117,7 +131,7 @@ const processMessage = (message: any) => {
 
     // Check if the message is login or signup
     if (message.event === "login" || message.event === "signup") {
-      console.log("Message from the publisher: ", message.event);
+      console.log("Message from publisher:", message.event);
     } else {
       console.log("Message type not recognized");
     }
@@ -125,3 +139,6 @@ const processMessage = (message: any) => {
     console.error("Error processing message:", error);
   }
 };
+
+
+
