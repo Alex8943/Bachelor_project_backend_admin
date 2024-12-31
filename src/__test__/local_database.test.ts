@@ -1,7 +1,7 @@
 import request from 'supertest';
 import sequelize from '../other_services/sequelizeConnection'; 
-import { testDBConnection } from '../db_services/db_connection';
-import { test_DB2_connection } from '../db_services/db2_connection';
+import { testDBConnection } from '../db_services/local/db_connection';
+import { test_DB2_connection } from '../db_services/local/db2_connection';
 import dotenv from 'dotenv';
 import mysql from 'mysql2/promise';
 import { error } from 'console';

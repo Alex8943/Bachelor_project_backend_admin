@@ -1,6 +1,6 @@
 import express from 'express';
 import Logger from '../other_services/winstonLogger';
-import conn from '../db_services/db_connection';
+import conn from '../db_services/local/db_connection';
 import { User, Role } from '../other_services/model/seqModel';
 import verifyUser from './authenticateUser';
 

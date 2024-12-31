@@ -16,10 +16,12 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const LOCAL_RABBITMQ_URL = process.env.rabbitmq_url || "amqp://localhost";
+const LOCAL_RABBITMQ_URL = process.env.rabbitmq_port || "amqp://localhost";
 if (!LOCAL_RABBITMQ_URL) {
   throw new Error("RabbitMQ URL is not provided");
 }
+
+console.log("RabbitMQ URL:", LOCAL_RABBITMQ_URL); 
 const AUTH_QUEUE_NAME = "authentication queue";
 
 export const initializeConsumers = async () => {
@@ -73,29 +75,7 @@ export const initializeConsumers = async () => {
 const startAuthenticationConsumer = async (channel: amqp.Channel) => {
   try {
     console.log(`Listening for messages on queue: ${AUTH_QUEUE_NAME}`);
-
-    /*channel.consume(
-      AUTH_QUEUE_NAME,
-      (message) => {
-        if (message) {
-          const userData = JSON.parse(message.content.toString());
-          console.log("New user data received from RabbitMQ:", userData);
-
-          // Broadcast the user data to SSE clients
-          broadcastNewUserEvent(userData);
-
-          // Process the message
-          processMessage(userData);
-
-          // Acknowledge the message (remove from queue)
-          channel.ack(message);
-        }
-      },
-      { noAck: false }
-    );*/
       
-
-
     channel.consume(
       AUTH_QUEUE_NAME,
       (message) => {
