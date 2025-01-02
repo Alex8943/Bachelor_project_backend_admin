@@ -3,8 +3,8 @@ import { test_DB2_connection } from './db_services/local/db2_connection';
 import { testDBConnection } from './db_services/local/db_connection';
 import { deployed_testDBConnection } from './db_services/deployed/db_connection';
 import { deployed_test_DB2_connection } from './db_services/deployed/db2_connection';
-//import { seedData } from '../seed_data';
-import { seedData2 } from './db_services/seed_data/database2(reviews)/seed_data2'
+import { seedData } from './db_services/seed_data/database1/seed_data';
+import { seedData2 } from './db_services/seed_data/database2/seed_data'
 import createBackup from './db_services/backup';
 import cors from 'cors';
 import authRouter from './routes/authRouter';

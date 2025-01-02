@@ -31,7 +31,7 @@ export const initializeConsumers = async () => {
     // Create a single connection and channel for all consumers
     const connection = await amqp.connect(LOCAL_RABBITMQ_URL);
     const channel = await connection.createChannel();
-
+    
     // Assert the authentication queue
     await channel.assertQueue(AUTH_QUEUE_NAME, { durable: true });
 
