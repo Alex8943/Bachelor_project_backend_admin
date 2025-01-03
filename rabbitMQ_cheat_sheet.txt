@@ -1,0 +1,10 @@
+1: connect to rabbitMQ: 
+ssh azureuser@20.54.85.24
+
+2: sudo docker ps -a // all images
+3: sudo docker start <imageID>
+4: sudo docker stop <imageID>
+
+5: RabbitMQ deployed url: 
+http://20.54.85.24:15672
+

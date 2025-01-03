@@ -52,6 +52,6 @@ process.on('SIGINT', () => {
 });
 
 app.listen(3000, async () => {
-    //await initializeConsumers();
+    await initializeConsumers();
     console.log('Admin server is running on localhost:3000');
 });

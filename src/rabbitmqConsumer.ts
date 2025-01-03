@@ -37,17 +37,17 @@ export const initializeConsumers = async () => {
 
     // Start all service consumers (with shared channel)
     await Promise.all([
-      startUserConsumer(channel),
-      startGenreConsumer(channel),
-      startMediaConsumer(channel),
-      startReviewGenresConsumer(channel),
-      startDeleteReviewConsumer(channel),
-      startUndeleteReviewConsumer(channel),
-      startFetchDeletedReviewsConsumer(channel),
-      startSearchReviewConsumer(channel),
-      startUpdateReviewSubscriber(channel),
-      startFetchOneReviewById(channel),
-      startPlatformServiceSubscriber(channel),
+      //startUserConsumer(channel),
+      //startGenreConsumer(channel),
+      //startMediaConsumer(channel),
+      //startReviewGenresConsumer(channel),
+      //startDeleteReviewConsumer(channel),
+      //startUndeleteReviewConsumer(channel),
+      //startFetchDeletedReviewsConsumer(channel),
+      //startSearchReviewConsumer(channel),
+      //startUpdateReviewSubscriber(channel),
+      //startFetchOneReviewById(channel),
+      //startPlatformServiceSubscriber(channel),
       startAuthenticationConsumer(channel),  // Add auth consumer
     ]);
 
