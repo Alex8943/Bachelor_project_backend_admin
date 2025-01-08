@@ -40,14 +40,14 @@ export const initializeConsumers = async () => {
       startUserConsumer(channel),
       startGenreConsumer(channel),
       startMediaConsumer(channel),
-      //startReviewGenresConsumer(channel),
-      //startDeleteReviewConsumer(channel),
-      //startUndeleteReviewConsumer(channel),
-      //startFetchDeletedReviewsConsumer(channel),
-      //startSearchReviewConsumer(channel),
-      //startUpdateReviewSubscriber(channel),
-      //startFetchOneReviewById(channel),
-      //startPlatformServiceSubscriber(channel),
+      startReviewGenresConsumer(channel),
+      startDeleteReviewConsumer(channel),
+      startUndeleteReviewConsumer(channel),
+      startFetchDeletedReviewsConsumer(channel),
+      startSearchReviewConsumer(channel),
+      startUpdateReviewSubscriber(channel),
+      startFetchOneReviewById(channel),
+      startPlatformServiceSubscriber(channel),
       startAuthenticationConsumer(channel),  // Add auth consumer
     ]);
 
