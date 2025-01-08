@@ -37,9 +37,9 @@ export const initializeConsumers = async () => {
 
     // Start all service consumers (with shared channel)
     await Promise.all([
-      //startUserConsumer(channel),
-      //startGenreConsumer(channel),
-      //startMediaConsumer(channel),
+      startUserConsumer(channel),
+      startGenreConsumer(channel),
+      startMediaConsumer(channel),
       //startReviewGenresConsumer(channel),
       //startDeleteReviewConsumer(channel),
       //startUndeleteReviewConsumer(channel),

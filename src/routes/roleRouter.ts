@@ -8,7 +8,7 @@ const router = express.Router();
 
 
 //Get role id's
-router.get("/roles", verifyUser, async function (req, res) {
+router.get("/roles", async function (req, res) {
     try {
         const roles = await getRoles();
         console.log('Roles fetched successfully');
