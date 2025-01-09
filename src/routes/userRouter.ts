@@ -196,8 +196,8 @@ export async function searchUserByName(value: string) {
     try {
         const query = `
             SELECT u.*, r.name AS roleName
-            FROM stohtpsd_company.user u
-            LEFT JOIN stohtpsd_company.role r ON u.role_fk = r.id
+            FROM user u
+            LEFT JOIN role r ON u.role_fk = r.id
             WHERE u.name LIKE ?
         `;
 
