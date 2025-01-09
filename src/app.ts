@@ -1,9 +1,7 @@
 import express from 'express';
 import { testDBConnection } from './db_services/local/db_connection';
 import { deployed_testDBConnection } from './db_services/deployed/db_connection';
-import { deployed_test_DB2_connection } from './db_services/deployed/db2_connection';
-//import { seedData } from './db_services/seed_data/database1/seed_data';
-
+import { seedData } from './db_services/seed_data/database1/seed_data';
 import createBackup from './db_services/backup';
 import cors from 'cors';
 import authRouter from './routes/authRouter';
@@ -19,22 +17,12 @@ import logger from './other_services/winstonLogger';
 //testDBConnection();
 
 //deployed_testDBConnection();
-//deployed_test_DB2_connection();
 
 //seedData();
-//seedData2();
 //createBackup();
 
 const app = express();
-app.use(cors());
-
-// Enable CORS for all routes
-app.use(
-  cors({
-    origin: "http://localhost:5173", // Allow requests from your frontend
-    credentials: true,
-  })
-);  
+app.use(cors()); 
 
 app.use("/sse", sseRouter);
 app.use(authRouter);
