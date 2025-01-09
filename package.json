@@ -2,11 +2,10 @@
   "name": "bachelor_project_backend",
   "version": "1.0.0",
   "description": "\"# Bachelor_project_backend\"",
-  "main": "dist/app.js",
+  "main": "./src/app.js",
   "scripts": {
     "dev": "nodemon --exec ts-node ./src/app.ts",
-    "test": "jest",
-    "build": "tsc && echo 'Build complete!'"
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
