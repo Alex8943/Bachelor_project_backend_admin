@@ -1,5 +1,5 @@
 import amqp from "amqplib";
-import { broadcastNewUserEvent } from "./routes/updateRouter"; // Import the broadcast function
+import { broadcastNewUserEvent} from "./routes/updateRouter"; // Import the broadcast function
 import { startUserConsumer } from "./other_services/rabbitMQService/userServiceSubsriber";
 import { startGenreConsumer } from "./other_services/rabbitMQService/genreServiceSubsriber";
 import { startMediaConsumer } from "./other_services/rabbitMQService/mediaServiceSubsriber";

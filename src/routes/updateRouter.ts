@@ -6,12 +6,19 @@ const clients: any[] = []; // Store active SSE connections
 
 
 const sendEventToClients = (event: any) => {
+  console.log(`Broadcasting event to ${clients.length} clients:`, event);
   clients.forEach((client) => {
     client.res.write(`data: ${JSON.stringify(event)}\n\n`);
   });
 };
 
-router.get("/events", (req, res) => {
+setInterval(() => {
+  clients.forEach((client) => {
+    client.res.write(`event: ping\ndata: {}\n\n`); // Sends a "ping" event
+  });
+}, 15000); // Every 15 seconds
+
+router.get("/sse/events", (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
@@ -28,6 +35,8 @@ router.get("/events", (req, res) => {
 
   console.log(`Client connected: ${clientId}`);
 
+  
+
   // Remove the client on connection close
   req.on("close", () => {
     console.log(`Client disconnected: ${clientId}`);
@@ -39,16 +48,16 @@ router.get("/events", (req, res) => {
 });
 
 
+
 // Broadcast RabbitMQ events dynamically
-// Broadcast RabbitMQ events dynamically
-const broadcastNewUserEvent = (user: any) => {
-  const eventType = user.event === "login" ? "login" : "signup";
+const broadcastNewUserEvent = (message: any) => {
+  const eventType = message.event === "login" ? "login" : "signup";
 
   sendEventToClients({
     event: eventType,
     user: {
-      name: user.name,
-      email: user.email,
+      name: message.name, 
+      email: message.email
     },
     timestamp: new Date().toISOString(),
   });

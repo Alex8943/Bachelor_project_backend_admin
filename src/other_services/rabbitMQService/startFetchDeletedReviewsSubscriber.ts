@@ -4,7 +4,6 @@ import { fetchDataFromQueue } from "./rabbitMQ"; // Function to fetch data from 
 export async function startFetchDeletedReviewsConsumer(channel: any) {
     const queue = "soft-deleted-reviews-service";
 
-    try {
         await channel.assertQueue(queue, { durable: false });
         console.log(`Listening for messages in ${queue}...`);
 
@@ -13,8 +12,6 @@ export async function startFetchDeletedReviewsConsumer(channel: any) {
             async (msg: any) => {
                 if (msg) {
                     console.log("Received request for fetching all soft-deleted reviews...");
-
-                    try {
                         // Fetch soft-deleted reviews from the database
                         const reviews = await Review.findAll({ where: { isBlocked: true } });
 
@@ -33,20 +30,10 @@ export async function startFetchDeletedReviewsConsumer(channel: any) {
                                     };
                                 } catch (error) {
                                     console.error(`Error fetching user for review ID ${review.id}:`, error);
-                                    return {
-                                        id: review.id,
-                                        title: review.title,
-                                        description: review.description,
-                                        user: { error: `Error fetching user for ID ${review.user_fk}` },
-                                        createdAt: review.createdAt,
-                                        updatedAt: review.updatedAt,
-                                    };
                                 }
                             })
                         );
                         
-
-                        console.log("Enriched soft-deleted reviews:", enrichedReviews);
 
                         // Send enriched reviews back via RabbitMQ
                         channel.sendToQueue(
@@ -55,16 +42,10 @@ export async function startFetchDeletedReviewsConsumer(channel: any) {
                             { correlationId: msg.properties.correlationId }
                         );
                         console.log("Soft-deleted reviews sent back.");
-                    } catch (error) {
-                        console.error("Error fetching soft-deleted reviews:", error);
-                    }
 
                     channel.ack(msg); // Acknowledge the message
                 }
             },
             { noAck: false }
         );
-    } catch (error) {
-        console.error("Error setting up soft-deleted reviews consumer:", error);
     }
-}

@@ -1,7 +1,7 @@
 import express from 'express';
 import { testDBConnection } from './db_services/local/db_connection';
 import { deployed_testDBConnection } from './db_services/deployed/db_connection';
-//import { seedData } from './db_services/seed_data/database1/seed_data';
+import { seedData } from './db_services/seed_data/database1/seed_data';
 //import { seedData2 } from './db_services/seed_data/database2/seed_data';
 import createBackup from './db_services/backup';
 import cors from 'cors';
@@ -26,7 +26,7 @@ import logger from './other_services/winstonLogger';
 const app = express();
 app.use(cors()); 
 
-app.use("/sse", sseRouter);
+app.use(sseRouter);
 app.use(authRouter);
 app.use(genreRouter);
 app.use(actionRouter);
