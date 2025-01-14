@@ -3,9 +3,8 @@ import { signUpSchema, loginSchema } from "./validator";
 import Joi from "joi"
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { User } from "../other_services/model/seqModel";
+import { User, Role } from "../other_services/model/seqModel";
 import logger from "../other_services/winstonLogger";
-import { Role } from "../other_services/model/seqModel";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -24,31 +23,78 @@ const validation = (schema: Joi.Schema) => (req: Request, res: Response, next: N
 
 router.post("/auth/signup", validation(signUpSchema), async (req, res) => {
     try {
-        const result: any = await createUser(req.body.name, req.body.lastname, req.body.email, req.body.password);
-      
-        let jwtUser = {
-            "id": result.id,
-            "name": result.name,
-            "lastname": result.lastname,
-            "email": result.email,
-            "password": result.password,
+        const { name, lastname, email, password, role_fk } = req.body;
+
+        // Validate role_fk
+        if (!role_fk) {
+            return res.status(400).json({ message: "Role is required." });
         }
-        let resultWithToken = {"authToken": jwt.sign({ user: jwtUser }, "secret"), "user": result};
-        res.status(200).send(resultWithToken);
-        console.log("Only token: ", jwtUser)
-        return resultWithToken;
-    } catch (err:any) {
-        if (err.code == 409){
-            res.status(409).send(err.message);
-            return err.message;
-        } else {
-            res.status(500).send("Something went wrong while creating user ");
-            console.log("Error: ", err)
-            logger.error(err.message);
-            return "Something went wrong while creating user (returning 500)";
+
+        // Check if user already exists
+        const alreadyExists = await User.findOne({ where: { email } });
+        if (alreadyExists) {
+            return res.status(409).json({ message: "User already exists." });
         }
+
+        // Hash the password
+        const hash_password = bcrypt.hashSync(password, 10);
+
+        // Create the user with role_fk
+        const newUser = await User.create({
+            name,
+            lastname,
+            email,
+            password: hash_password,
+            role_fk,
+        });
+
+        // Fetch the user with role details
+        const userWithRole = await User.findOne({
+            where: { id: newUser.id },
+            attributes: ["id", "name", "lastname", "email", "role_fk"],
+            include: [{ model: Role, attributes: ["name"] }],
+        });
+
+        if (!userWithRole) {
+            return res.status(404).json({ message: "Failed to fetch user role after signup." });
+        }
+
+        const userData = {
+            ...userWithRole.toJSON(), // Convert Sequelize object to plain JSON
+            Role: userWithRole.Role ? { name: userWithRole.Role.name } : null, // Flatten the Role object
+        };
+
+        // Prepare JWT payload
+        const jwtUser = {
+            id: userData.id,
+            name: userData.name,
+            lastname: userData.lastname,
+            email: userData.email,
+            role_fk: userData.role_fk,
+            roleName: userData.Role ? userData.Role.name : null,
+        };
+
+        // Generate JWT token
+        const token = jwt.sign({ user: jwtUser }, process.env.JWT_SECRET || "secret");
+
+        // Response payload
+        const resultWithToken = {
+            authToken: token,
+            user: userData,
+        };
+
+        console.log("User: ", resultWithToken, " Has signed up");
+        res.status(200).json(resultWithToken);
+    } catch (err: any) {
+        console.error("Error during signup:", err);
+        res.status(500).json({ message: "Something went wrong while creating user." });
+        logger.error(err.message);
     }
-})
+});
+
+
+
+
 
 router.post("/auth/login", validation(loginSchema), async (req, res) => {
     try {
@@ -117,31 +163,6 @@ export async function getUser(email: string, password: string) {
         throw error;
     }
 }
-
-
-export async function createUser(name: string, lastname: string, email: string, password: string) {
-    try{
-        const alreadyExists = await User.findOne({where: {email: email}});
-        if(alreadyExists){
-            throw {code: 409, message: "User already exists"};
-        }
-        let hash_password = bcrypt.hashSync(password, 10);
-        
-        const result = await User.create({
-            name: name,
-            lastname: lastname,
-            email: email,
-            password: hash_password,
-            role_fk: 1,
-        });
-
-        console.log("Created user: ", result);
-        
-        return result;
-    }catch(error){
-        throw error;
-    }
-};
 
 
 

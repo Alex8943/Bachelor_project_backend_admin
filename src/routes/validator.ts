@@ -9,7 +9,8 @@ export const signUpSchema = Joi.object({
     .pattern(emailPattern)
     .message("Email must be valid and not contain special characters other than '.', '_', '%', '+', and '-'")
     .required(),
-    password: Joi.string().min(8).required()
+    password: Joi.string().min(8).required(),
+    role_fk: Joi.number().required(),
 });
 
 export const loginSchema = Joi.object({

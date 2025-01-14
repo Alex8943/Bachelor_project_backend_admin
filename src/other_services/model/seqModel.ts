@@ -15,6 +15,7 @@ export class User extends Model {
     declare deletedAt: Date | null;
     declare verifiedAt: Date | null;
     declare isBlocked: boolean;
+    declare Role?: Role;
 }
 
 User.init({
