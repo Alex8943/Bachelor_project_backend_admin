@@ -32,7 +32,6 @@ router.get('/users', verifyUser, async (req, res) => {
                     },
                 ],
                 attributes: { exclude: ['password'] },
-                limit: 200,
             });
             Logger.info("Users fetched successfully");
             return userResult;
