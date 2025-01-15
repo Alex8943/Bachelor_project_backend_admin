@@ -50,6 +50,7 @@ export const devConfig = {
     },
 };
 
+
 console.log(`Current Environment: ${environment}`);
 
 export const config = (environment === "production" ? prodConfig : devConfig);

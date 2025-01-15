@@ -3,6 +3,7 @@ import { testDBConnection } from './db_services/local/db_connection';
 import { deployed_testDBConnection } from './db_services/deployed/db_connection';
 //import { seedData } from './db_services/seed_data/database1/seed_data';
 //import { seedData2 } from './db_services/seed_data/database2/seed_data';
+import { sequelizeSync } from './other_services/sequelizeConnection';
 import createBackup from './db_services/backup';
 import cors from 'cors';
 import authRouter from './routes/authRouter';
@@ -14,14 +15,11 @@ import { sseRouter } from './routes/updateRouter'; // SSE Router
 import {initializeConsumers } from './rabbitmqConsumer'; // RabbitMQ Consumer
 import logger from './other_services/winstonLogger';
 
-//test_DB2_connection();
-//testDBConnection();
-
-//deployed_testDBConnection();
 
 //seedData();
 //seedData2();
 //createBackup();
+//sequelizeSync();
 
 const app = express();
 app.use(cors()); 
@@ -44,3 +42,5 @@ app.listen(3000, async () => {
     await initializeConsumers();
     console.log('Admin server is running on localhost:3000');
 });
+
+export default app;

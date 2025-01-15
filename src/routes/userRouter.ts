@@ -39,7 +39,7 @@ router.get('/users', verifyUser, async (req, res) => {
             Logger.error("Error fetching users: ", error);
             throw error;
         }
-    }
+}
     
 
 router.get('/user/:id', verifyUser ,async (req, res) => {
