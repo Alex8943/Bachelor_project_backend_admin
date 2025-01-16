@@ -43,4 +43,3 @@ app.listen(3000, async () => {
     console.log('Admin server is running on localhost:3000');
 });
 
-export default app;

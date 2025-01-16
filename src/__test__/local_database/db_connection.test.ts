@@ -1,7 +1,5 @@
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
-import request from 'supertest';
-import app from '../../app';
 
 dotenv.config();
 
