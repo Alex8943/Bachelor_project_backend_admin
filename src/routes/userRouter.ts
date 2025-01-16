@@ -11,41 +11,48 @@ import { verify } from 'crypto';
 const router = express.Router();
 
 
-router.get('/users', verifyUser, async (req, res) => {
+router.get('/users/:max/:offset', verifyUser, async (req, res) => {
     try {
-        const users = await getUsers();
-        console.log('Users fetched successfully');
-        res.status(200).send(users);
+      const max = parseInt(req.params.max, 10); // Number of users to fetch
+      const offset = parseInt(req.params.offset, 10); // Starting point for fetching users
+  
+      const users = await getUsers(max, offset); // Pass max and offset to the function
+      res.status(200).send(users);
     } catch (error) {
-        console.error('Error fetching users:', error);
-        res.status(500).send('Something went wrong while fetching users');
-    }});
+      console.error('Error fetching users:', error);
+      res.status(500).send('Something went wrong while fetching users');
+    }
+});
+  
 
-    export async function getUsers() {
-        try {
-            const userResult = await User.findAll({
-                where: { isBlocked: false }, 
-                include: [
-                    {
-                        model: sequelize.models.Role, 
-                        attributes: ['name'], 
-                    },
-                ],
-                attributes: { exclude: ['password'] },
-            });
-            Logger.info("Users fetched successfully");
-            return userResult;
-        } catch (error) {
-            Logger.error("Error fetching users: ", error);
-            throw error;
-        }
+export async function getUsers(max: number, offset: number) {
+    try {
+          const userResult = await User.findAll({
+            where: { isBlocked: false },
+            limit: max,
+            offset: offset, 
+            include: [
+              {
+                model: sequelize.models.Role,
+                attributes: ['name'],
+              },
+            ],
+            attributes: { exclude: ['password'] },
+          });
+      
+          console.log(`Users fetched: ${userResult.length}, Offset: ${offset}`);
+          return userResult;
+    } catch (error) {
+          Logger.error('Error fetching users: ', error);
+          throw error;
+    }
 }
+      
     
 
 router.get('/user/:id', verifyUser ,async (req, res) => {
     try {
         const users = await getUserById(req.params.id);
-        console.log('Specific users fetched successfully');
         res.status(200).send(users);
     } catch (error) {
         console.error('Error fetching specific users:', error);
@@ -72,7 +79,6 @@ router.get('/user/:id', verifyUser ,async (req, res) => {
             return null; // Return null if the user does not exist
           }
       
-          Logger.info("Specific user fetched successfully");
           return userResult;
         } catch (error) {
           Logger.error("Error fetching specific user: ", error);
