@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --exec ts-node --transpile-only ./src/app.ts",
-    "build": "tsc && cpy src/config.* dist/",
+    "build": "tsc",
     "start": "node  ./dist/src/app.js"
   },
   "keywords": [],
