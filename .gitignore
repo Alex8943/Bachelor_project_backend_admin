@@ -5,8 +5,6 @@
 backups
 seed_data.ts
 
-*.vscode
-
 # Logs
 logs
 *.log
