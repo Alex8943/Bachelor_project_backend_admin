@@ -86,37 +86,53 @@ router.get('/user/:id', verifyUser ,async (req, res) => {
         }
       }
       
-
-router.get('/users/role/:userRole', verifyUser, async (req, res) => {
-    try {
-        const users = await getUsersByRole(req.params.userRole);
-        console.log('Specific users fetched successfully');
-        res.status(200).send(users);
-    } catch (error) {
-        console.error('Error fetching specific users:', error);
-        res.status(500).send('Something went wrong while fetching specific users');
-    }});
-    
-
-
-    export async function getUsersByRole(role_fk: any) {
+/*
+      router.get('/users/role/:id', verifyUser, async (req, res) => {
         try {
-          const users = await User.findAll({
-            where: { role_fk }, // Filter users by role_fk
-            include: [
-              {
-                model: Role,
-                as: "Role", // Ensure the alias matches the Sequelize 
-                attributes: ["id", "name"], // Include only necessary Role attributes
-              },
-            ],
-          });
-          return users;
+            const id = parseInt(req.params.id, 10);
+            const offset = parseInt(req.query.offset as string, 10) || 0; // Default to 0
+            const limit = parseInt(req.query.limit as string, 10) || 25;  // Default to 25
+    
+            if (isNaN(id) || isNaN(offset) || isNaN(limit)) {
+                return res.status(400).send('Invalid parameters.');
+            }
+    
+            const users = await getUsersByRole(id, offset, limit);
+            console.log('Specific users fetched successfully');
+            res.status(200).send(users);
         } catch (error) {
-          Logger.error("Error fetching users by role: ", error);
-          throw error;
+            console.error('Error fetching specific users:', error);
+            res.status(500).send('Something went wrong while fetching specific users');
         }
-      }
+    });
+      
+        
+    
+    export async function getUsersByRole(roleId: number, offset = 0, limit = 25) {
+        try {
+            const users = await User.findAll({
+                where: { role_fk: roleId }, // Ensure you're filtering by role_fk
+                include: [
+                    {
+                        model: Role,
+                        attributes: ['id', 'name'], // Include only necessary Role attributes
+                    },
+                ],
+                offset, // Use Sequelize's offset
+                limit,  // Use Sequelize's limit
+            });
+            return users;
+        } catch (error) {
+            console.error('Error fetching users by role:', error);
+            throw error;
+        }
+    }
+
+    */
+
+    
+    
+      
       
 
 //Get all reviews made by a specific user

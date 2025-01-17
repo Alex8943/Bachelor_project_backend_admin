@@ -11,7 +11,6 @@ export default function verifyUser(req: any, res: any, next: any) {
     const token = authHeader.split(" ")[1]; // Extract the token
 
     const decoded = jwt.verify(token, "secret") as JwtPayload;
-    console.log("Decoded Token:", decoded);
 
     // Safely extract user ID from the nested 'user' object
     const userIdFromToken = decoded.user?.id;

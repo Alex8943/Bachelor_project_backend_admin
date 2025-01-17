@@ -31,6 +31,33 @@ export async function getRoles() {
       throw error;
     }
   }
-  ``
+
+
+
+router.get("/role/:id", verifyUser, async function (req, res) {
+    try {
+        const id = parseInt(req.params.id);
+        console.log("req to backend", req.params.id);
+        const users = await getRoleById(id);
+        res.status(200).send(users);
+    } catch (error) {
+        console.error('Error fetching users by role:', error);
+        res.status(500).send('Something went wrong while fetching users by role');
+    }
+  });
+
+export async function getRoleById(id: number){
+  try{
+    
+    const role = await Role.findAll({
+      where: {id: id},
+    });
+
+    console.log("Roles fetched successfully");
+    return role;
+  }catch(error){
+    console.log("Error in getRoleById: ", error);
+  }
+}
 
 export default router;
