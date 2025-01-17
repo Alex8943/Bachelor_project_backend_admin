@@ -3,7 +3,6 @@ import { testDBConnection } from './db_services/local/db_connection';
 import { deployed_testDBConnection } from './db_services/deployed/db_connection';
 //import { seedData } from './db_services/seed_data/database1/seed_data';
 //import { seedData2 } from './db_services/seed_data/database2/seed_data';
-import { sequelizeSync } from './other_services/sequelizeConnection';
 import createBackup from './db_services/backup';
 import cors from 'cors';
 import authRouter from './routes/authRouter';
@@ -19,7 +18,6 @@ import logger from './other_services/winstonLogger';
 //seedData();
 //seedData2();
 //createBackup();
-//sequelizeSync();
 
 const app = express();
 app.use(cors()); 
