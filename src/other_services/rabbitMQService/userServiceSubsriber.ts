@@ -22,19 +22,23 @@ export async function startUserConsumer(channel: any) {
                         if (user) {
                             console.log(`User data found:`, user.toJSON());
                         } else {
-                            console.log(`User with ID ${userId} not found.`);
+                            console.warn(`User with ID ${userId} not found.`);
                         }
 
                         // Send response back to the requester
                         channel.sendToQueue(
                             msg.properties.replyTo, // Reply queue
-                            Buffer.from(JSON.stringify(user || { error: `User with ID ${userId} not found` })), // User data or error
+                            Buffer.from(
+                                JSON.stringify(
+                                    user || { error: `User with ID ${userId} not found` }
+                                )
+                            ), // User data or error
                             { correlationId: msg.properties.correlationId } // Match request-response
                         );
 
                         console.log(`User data sent back for userId: ${userId}`);
                     } catch (error) {
-                        console.error("Error fetching user data:", error);
+                        console.error(`Error fetching user data for userId ${userId}:`, error);
                     }
 
                     // Acknowledge the message
@@ -43,7 +47,6 @@ export async function startUserConsumer(channel: any) {
             },
             { noAck: false } // Ensure message acknowledgment
         );
-
     } catch (error) {
         console.error("Error setting up user consumer:", error);
     }
