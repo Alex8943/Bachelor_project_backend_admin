@@ -10,18 +10,23 @@ import genreRouter from './routes/genreRouter';
 import actionRouter from './routes/reviewActionRouter';
 import userRouter from './routes/userRouter';
 import roleRouter from './routes/roleRouter';
+import mediaRouter from './routes/mediaRouter';
+import platformRouter from './routes/platformRouter';
 import { sseRouter } from './routes/updateRouter'; // SSE Router
 import {initializeConsumers } from './rabbitmqConsumer'; // RabbitMQ Consumer
 import logger from './other_services/winstonLogger';
-
-
+import { syncDatabases } from './db_services/syncDatabases';
 //seedData();
 //seedData2();
 //createBackup();
+//syncDatabases();
+
 
 const app = express();
 app.use(cors()); 
 
+app.use(mediaRouter);
+app.use(platformRouter);
 app.use(sseRouter);
 app.use(authRouter);
 app.use(genreRouter);
